@@ -1,46 +1,60 @@
-@import "tailwindcss";
+/* ── Shared UI base (shadcn + Tailwind) ── */
 @import "@marstv/ui/styles/globals.css";
 
-/* Deep-space animated background */
+/* ── MarsTV Design Tokens ── */
+@theme inline {
+  --color-primary: #FF6B35;
+  --color-primary-hover: #FF8C5A;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-dim-foreground: #6a6a80;
+  --color-border-strong: rgba(255, 255, 255, 0.14);
+  --color-danger: #ef4444;
+}
+
+.dark {
+  --primary: #FF6B35;
+  --primary-foreground: #ffffff;
+  --ring: rgba(255, 107, 53, 0.4);
+}
+
+@keyframes marstv-progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
 .marstv-space-bg {
-	background:
-		radial-gradient(
-			ellipse at 50% 0%,
-			rgba(255, 107, 53, 0.06) 0%,
-			transparent 60%
-		),
-		radial-gradient(
-			ellipse at 85% 20%,
-			rgba(100, 80, 255, 0.04) 0%,
-			transparent 50%
-		),
-		linear-gradient(180deg, #0a0a0f 0%, #0f0f1a 40%, #0d0d18 100%);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 107, 53, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 20%, rgba(100, 80, 255, 0.04) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0a0f 0%, #0f0f1a 40%, #0d0d18 100%);
 }
 
 .glass-header {
-	background: rgba(15, 15, 26, 0.72);
-	backdrop-filter: blur(16px) saturate(140%);
-	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(15, 15, 26, 0.72);
+  backdrop-filter: blur(16px) saturate(140%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .glass-footer {
-	background: rgba(10, 10, 15, 0.8);
-	backdrop-filter: blur(12px);
-	border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(10, 10, 15, 0.8);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .glass-card {
-	background: rgba(255, 255, 255, 0.03);
-	border: 1px solid rgba(255, 255, 255, 0.06);
-	backdrop-filter: blur(8px);
-}
-
-.glass-input {
-	background: rgba(255, 255, 255, 0.04);
-	border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
 }
 
 .glass-button {
-	background: rgba(255, 107, 53, 0.12);
-	border: 1px solid rgba(255, 107, 53, 0.2);
+  background: rgba(255, 107, 53, 0.12);
+  border: 1px solid rgba(255, 107, 53, 0.2);
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
 }
