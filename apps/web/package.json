@@ -1,0 +1,35 @@
+{
+  "name": "@marstv/web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@marstv/core": "workspace:*",
+    "@marstv/ui": "workspace:*",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-router": "catalog:"
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-react-hooks": "catalog:",
+    "eslint-plugin-react-refresh": "catalog:",
+    "globals": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:",
+    "vite": "catalog:"
+  }
+}

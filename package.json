@@ -1,0 +1,26 @@
+{
+  "name": "marstv",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "catalog": "pnpx codemod pnpm/catalog"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@biomejs/biome": "catalog:",
+    "@tailwindcss/cli": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "prettier": "catalog:",
+    "prettier-plugin-tailwindcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:"
+  }
+}

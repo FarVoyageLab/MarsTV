@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm *)",
+      "Bash(git *)",
+      "Bash(sed -i 's/__PAGE_NAME__/NotFoundPage/g; s/__TITLE__/迷路在太空深处/g; s/__SUBTITLE__/你访问的页面不存在/g' NotFoundPage.tsx)",
+      "Bash(sed -i 's/__PAGE_NAME__/DoubanPage/g; s/__TITLE__/豆瓣片单/g; s/__SUBTITLE__/发现高分影视内容/g' DoubanPage.tsx)",
+      "Bash(sed -i 's/__PAGE_NAME__/FavoritesPage/g; s/__TITLE__/我的收藏/g; s/__SUBTITLE__/收藏的视频都在这里/g' FavoritesPage.tsx)",
+      "Bash(sed -i 's/__PAGE_NAME__/HistoryPage/g; s/__TITLE__/观看历史/g; s/__SUBTITLE__/继续上次的观看/g' HistoryPage.tsx)",
+      "Bash(sed -i 's/__PAGE_NAME__/SubscriptionsPage/g; s/__TITLE__/追剧订阅/g; s/__SUBTITLE__/订阅的剧集更新提醒/g' SubscriptionsPage.tsx)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}
