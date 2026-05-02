@@ -23,9 +23,7 @@ export function SearchBox({
 	const [loading, setLoading] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	useEffect(() => {
-		setValue(defaultValue);
-	}, [defaultValue]);
+	useEffect(() => setValue(defaultValue), [defaultValue]);
 
 	const submit = useCallback(
 		(e?: React.FormEvent) => {
@@ -38,7 +36,6 @@ export function SearchBox({
 		[value, loading, onSearch],
 	);
 
-	// ⌘K / Ctrl+K to focus
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -54,138 +51,140 @@ export function SearchBox({
 
 	return (
 		<div className={["w-full", className].filter(Boolean).join(" ")}>
-			<form
-				onSubmit={submit}
-				className={[
-					"group relative flex items-center transition-all duration-500",
-					"rounded-2xl border",
-					// Liquid glass surface
-					"bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-white/[0.04]",
-					"backdrop-blur-xl",
-					// Iridescent border
-					focused
-						? "border-white/[0.12] shadow-[0_0_32px_rgba(255,122,0,0.08),0_0_0_1px_rgba(255,122,0,0.12),inset_0_1px_0_rgba(255,255,255,0.04)]"
-						: "border-white/[0.06] hover:border-white/[0.09]",
-					big ? "h-14" : "h-11",
-				].join(" ")}
-			>
-				{/* Iridescent edge glow on focus */}
+			<form onSubmit={submit} className="group relative">
+				{/* Focus burst ring */}
 				<div
 					className={[
-						"pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-700",
-						focused ? "opacity-100" : "",
+						"pointer-events-none absolute -inset-2 rounded-2xl transition-all duration-700",
+						focused ? "opacity-100 ring-1 ring-primary/15" : "opacity-0",
 					].join(" ")}
-					style={{
-						background:
-							"linear-gradient(135deg, rgba(255,122,0,0.15) 0%, rgba(61,214,208,0.08) 50%, rgba(229,46,113,0.06) 100%)",
-						filter: "blur(1px)",
-						zIndex: -1,
-					}}
 				/>
 
-				{/* Search icon */}
+				{/* Main input container */}
 				<div
 					className={[
-						"pointer-events-none absolute left-0 flex items-center justify-center transition-all duration-500",
-						focused ? "text-primary/80" : "text-dim-foreground/60",
-						big ? "h-14 w-12" : "h-11 w-10",
+						"relative flex items-center overflow-hidden transition-all duration-500",
+						"border bg-black/50 backdrop-blur-sm",
+						big ? "h-16 rounded-2xl" : "h-12 rounded-xl",
+						focused
+							? "border-primary/25 shadow-[0_0_48px_rgba(255,106,0,0.06),0_0_0_1px_rgba(255,106,0,0.12)] bg-black/70"
+							: "border-white/[0.05] hover:border-white/[0.08]",
 					].join(" ")}
 				>
-					<MagnifyingGlass
-						weight={focused ? "fill" : "regular"}
+					{/* Inner corona glow */}
+					<div
 						className={[
-							"transition-all duration-500",
-							big ? "h-5 w-5" : "h-4 w-4",
-							focused
-								? "scale-110 drop-shadow-[0_0_8px_rgba(255,122,0,0.3)]"
-								: "",
+							"pointer-events-none absolute inset-0 transition-opacity duration-1000",
+							focused ? "opacity-100" : "opacity-0",
 						].join(" ")}
+						style={{
+							background:
+								"radial-gradient(ellipse 120% 90% at 50% 50%, rgba(255,106,0,0.05) 0%, transparent 70%)",
+						}}
 					/>
-				</div>
 
-				<input
-					ref={inputRef}
-					type="search"
-					inputMode="search"
-					name="q"
-					value={value}
-					onChange={(e) => setValue(e.target.value)}
-					onFocus={() => setFocused(true)}
-					onBlur={() => setFocused(false)}
-					placeholder="搜索电影、电视剧、动漫…"
-					autoFocus={autoFocus}
-					autoComplete="off"
-					className={[
-						"peer h-full flex-1 bg-transparent text-foreground outline-none",
-						"placeholder:text-dim-foreground/40",
-						big ? "text-base" : "text-sm",
-					].join(" ")}
-					style={{ paddingLeft: big ? "3rem" : "2.5rem" }}
-				/>
+					{/* Scan line on loading */}
+					{loading ? (
+						<div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px animate-[scan-line_1.5s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-primary to-transparent" />
+					) : null}
 
-				{/* Clear button */}
-				<button
-					type="button"
-					onClick={() => {
-						setValue("");
-						inputRef.current?.focus();
-					}}
-					className={[
-						"flex shrink-0 items-center justify-center rounded-full",
-						"text-dim-foreground/50 transition-all hover:text-foreground",
-						"opacity-0 peer-[:not(:placeholder-shown)]:opacity-100",
-						big ? "h-8 w-8" : "h-7 w-7",
-					].join(" ")}
-				>
-					<X className={big ? "h-4 w-4" : "h-3.5 w-3.5"} />
-				</button>
-
-				{/* Divider + Submit */}
-				<div className="flex shrink-0 items-center self-stretch pr-2">
-					<div className="mr-2 h-5 w-px bg-white/[0.06]" />
-					<button
-						type="submit"
-						disabled={loading || value.trim().length === 0}
+					{/* Search icon */}
+					<div
 						className={[
-							"flex shrink-0 items-center gap-1.5 rounded-xl font-medium",
-							"transition-all duration-300 disabled:opacity-30",
-							// Liquid glass button styling
-							"bg-gradient-to-br from-primary/20 via-primary/15 to-accent-liquid/10",
-							"border border-primary/20",
-							"hover:from-primary/30 hover:to-accent-liquid/15 hover:border-primary/30",
-							"hover:shadow-[0_4px_16px_rgba(255,122,0,0.15)]",
-							"active:scale-95",
-							big ? "h-9 px-4 text-sm" : "h-8 px-3 text-xs",
+							"pointer-events-none absolute left-0 z-10 flex items-center justify-center transition-all duration-500",
+							big ? "h-16 w-14" : "h-12 w-11",
+							focused ? "text-primary" : "text-dim-foreground/70",
 						].join(" ")}
 					>
-						{loading ? (
-							<span className="inline-flex items-center gap-1.5">
-								<span className="h-3 w-3 animate-spin rounded-full border-2 border-primary/40 border-t-primary" />
-								搜索中
-							</span>
-						) : (
-							<>
-								<MagnifyingGlass className="h-3 w-3" />
-								搜索
-							</>
-						)}
-					</button>
-				</div>
-
-				{/* Bottom loading bar */}
-				{loading ? (
-					<div className="pointer-events-none absolute inset-x-3 -bottom-px h-[2px] overflow-hidden rounded-full">
-						<div className="h-full w-1/3 animate-[marstv-progress_1.2s_ease-in-out_infinite] rounded-full bg-gradient-to-r from-primary via-accent-liquid to-primary" />
+						<MagnifyingGlass
+							weight={focused ? "fill" : "regular"}
+							className={[
+								"transition-all duration-500",
+								big ? "h-5 w-5" : "h-4 w-4",
+								focused ? "scale-110" : "",
+							].join(" ")}
+						/>
 					</div>
-				) : null}
+
+					{/* Input */}
+					<input
+						ref={inputRef}
+						type="search"
+						inputMode="search"
+						name="q"
+						value={value}
+						onChange={(e) => setValue(e.target.value)}
+						onFocus={() => setFocused(true)}
+						onBlur={() => setFocused(false)}
+						onKeyDown={(e) => {
+							if (e.key === "Enter") submit();
+						}}
+						placeholder="搜索..."
+						autoFocus={autoFocus}
+						autoComplete="off"
+						spellCheck={false}
+						className={[
+							"relative z-10 h-full flex-1 bg-transparent font-medium tracking-wide text-foreground outline-none",
+							"placeholder:font-normal placeholder:tracking-normal placeholder:text-dim-foreground/35",
+							big ? "text-lg" : "text-sm",
+						].join(" ")}
+						style={{
+							paddingLeft: big ? "3.5rem" : "2.75rem",
+							paddingRight: "4.5rem",
+							fontFamily: "'Space Grotesk', system-ui, sans-serif",
+						}}
+					/>
+
+					{/* Right actions */}
+					<div className="absolute right-1.5 z-10 flex items-center gap-1">
+						{value.length > 0 ? (
+							<button
+								type="button"
+								onClick={() => {
+									setValue("");
+									inputRef.current?.focus();
+								}}
+								className="flex h-8 w-8 items-center justify-center rounded-lg text-dim-foreground/50 transition-colors hover:text-foreground"
+								aria-label="清除"
+							>
+								<X className="h-3.5 w-3.5" />
+							</button>
+						) : null}
+						<button
+							type="submit"
+							disabled={loading || value.trim().length === 0}
+							className={[
+								"flex items-center gap-1.5 rounded-xl font-medium tracking-wide transition-all disabled:opacity-25",
+								"bg-primary/8 text-primary/80 border border-primary/15",
+								"hover:bg-primary/15 hover:text-primary hover:border-primary/30 hover:shadow-[0_0_20px_rgba(255,106,0,0.10)]",
+								"active:scale-95",
+								big ? "h-10 px-4 text-sm" : "h-9 px-3 text-xs",
+							].join(" ")}
+						>
+							{loading ? (
+								<span className="h-3 w-3 animate-spin rounded-full border-[1.5px] border-primary/30 border-t-primary" />
+							) : (
+								<>
+									<MagnifyingGlass className="h-3 w-3" />
+									<span className="hidden sm:inline">搜索</span>
+								</>
+							)}
+						</button>
+					</div>
+				</div>
 			</form>
 
 			{/* Shortcut hint */}
-			<p className="mt-2 text-center text-[10px] text-dim-foreground/40 transition-opacity group-focus-within:opacity-0">
-				<kbd className="rounded border border-white/[0.06] bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10px]">
+			<p
+				className={[
+					"mt-2.5 text-center font-mono text-[10px] tracking-widest uppercase transition-all duration-300",
+					focused ? "opacity-0 translate-y-1" : "opacity-30",
+				].join(" ")}
+			>
+				<kbd className="rounded border border-white/[0.06] bg-white/[0.02] px-1.5 py-0.5 font-mono text-[10px]">
 					⌘K
-				</kbd>{" "}
-				快速搜索
+				</kbd>
+				<span className="ml-1.5 text-dim-foreground">聚焦搜索</span>
 			</p>
 		</div>
 	);

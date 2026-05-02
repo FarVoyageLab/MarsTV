@@ -1,281 +1,225 @@
 /* ── Shared UI base ── */
 @import "@marstv/ui/styles/globals.css";
 
-/* ── MarsTV Liquid Glass — Design Tokens ── */
-@theme inline {
-  --color-primary: #FF7A00;
-  --color-primary-hover: #FF9A40;
-  --color-primary-glow: rgba(255, 122, 0, 0.35);
-  --color-surface: rgba(255, 255, 255, 0.03);
-  --color-surface-raised: rgba(255, 255, 255, 0.06);
-  --color-dim-foreground: #787890;
-  --color-border-strong: rgba(255, 255, 255, 0.10);
-  --color-danger: #ff5c6c;
+/* ═══════════════════════════════════════════════════════════════════
+   SOLAR OBSERVATORY — Design System
+   Aesthetic: spacecraft instrument panel. Precision light. Deep void.
+   Single dominant: burning orange (#FF6A00). Accent: ice-blue (#4DF0FF).
+   Typography: Space Grotesk (geometric precision) + system mono (data).
+   ═══════════════════════════════════════════════════════════════════ */
 
-  /* Liquid glass accent — iridescent teal shift */
-  --color-accent-liquid: #3dd6d0;
-  --color-accent-liquid-glow: rgba(61, 214, 208, 0.25);
+@theme inline {
+  --color-primary: #FF6A00;
+  --color-primary-intense: #FF8C3D;
+  --color-ice: #4DF0FF;
+  --color-surface: rgba(255, 255, 255, 0.02);
+  --color-surface-raised: rgba(255, 255, 255, 0.04);
+  --color-dim-foreground: #5C5C6E;
+  --color-border-dim: rgba(255, 255, 255, 0.04);
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-strong: rgba(255, 255, 255, 0.10);
+  --color-danger: #FF4545;
+  --font-sans: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 .dark {
-  --primary: #FF7A00;
+  --primary: #FF6A00;
   --primary-foreground: #ffffff;
-  --ring: rgba(255, 122, 0, 0.35);
+  --ring: rgba(255, 106, 0, 0.5);
 }
 
-/* ── Keyframes ── */
+/* ═══════════════════════════════════════════════════════════════════
+   KEYFRAMES
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes corona-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes corona-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes focus-burst {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 106, 0, 0.5); }
+  100% { box-shadow: 0 0 0 24px rgba(255, 106, 0, 0); }
+}
+
+@keyframes scan-line {
+  0%   { top: -2px; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
 @keyframes marstv-progress {
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(400%); }
 }
 
-@keyframes liquid-shift {
-  0%, 100% { border-color: rgba(255, 122, 0, 0.15) rgba(61, 214, 208, 0.08) rgba(255, 122, 0, 0.10) rgba(61, 214, 208, 0.12); }
-  50%      { border-color: rgba(61, 214, 208, 0.10) rgba(255, 122, 0, 0.12) rgba(61, 214, 208, 0.08) rgba(255, 122, 0, 0.15); }
-}
+/* ═══════════════════════════════════════════════════════════════════
+   COSMIC BACKGROUND — single massive solar corona
+   ═══════════════════════════════════════════════════════════════════ */
 
-@keyframes liquid-float {
-  0%, 100% { transform: translateY(0px); }
-  50%      { transform: translateY(-2px); }
-}
-
-@keyframes specular-sweep {
-  0%   { left: -60%; opacity: 0; }
-  20%  { opacity: 0.6; }
-  80%  { opacity: 0.6; }
-  100% { left: 120%; opacity: 0; }
-}
-
-/* ── Deep-space nebula background ── */
 .marstv-space-bg {
   position: relative;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(255, 122, 0, 0.07) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 50% at 80% 15%, rgba(61, 214, 208, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 80% at 50% 100%, rgba(229, 46, 113, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 50%, rgba(100, 80, 255, 0.03) 0%, transparent 70%),
-    linear-gradient(175deg, #07070e 0%, #0c0c1a 35%, #0a0a16 70%, #0d0d1c 100%);
+  background: #060609;
+  overflow: hidden;
 }
 
+/* The corona — a single, enormous, slowly pulsing light source at the top */
 .marstv-space-bg::before {
   content: '';
   position: fixed;
-  inset: 0;
+  top: -60vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140vw;
+  height: 120vh;
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1px 1px at 45% 12%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1.5px 1.5px at 72% 8%, rgba(255,255,255,0.7), transparent),
-    radial-gradient(1px 1px at 88% 32%, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1.5px 1.5px at 25% 65%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1px 1px at 60% 75%, rgba(255,255,255,0.6), transparent),
-    radial-gradient(1px 1px at 92% 70%, rgba(255,255,255,0.3), transparent),
-    radial-gradient(1px 1px at 10% 85%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1.5px 1.5px at 35% 45%, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1px 1px at 55% 55%, rgba(255,255,255,0.5), transparent);
+    radial-gradient(
+      ellipse 70% 50% at 50% 100%,
+      rgba(255, 106, 0, 0.10) 0%,
+      rgba(255, 140, 60, 0.04) 25%,
+      rgba(255, 106, 0, 0.01) 50%,
+      transparent 70%
+    );
+  animation: corona-pulse 8s ease-in-out infinite;
 }
 
-/* ── Liquid Glass Header ── */
+/* Subtle ice-blue counter-glow from bottom-right */
+.marstv-space-bg::after {
+  content: '';
+  position: fixed;
+  bottom: -40vh;
+  right: -20vw;
+  width: 80vw;
+  height: 80vh;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 60% at 50% 50%,
+      rgba(77, 240, 255, 0.03) 0%,
+      transparent 70%
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   HEADER — near-invisible. The void shows through.
+   ═══════════════════════════════════════════════════════════════════ */
+
 .glass-header {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: linear-gradient(
-    180deg,
-    rgba(12, 12, 26, 0.85) 0%,
-    rgba(12, 12, 26, 0.65) 100%
-  );
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border-bottom: 1px solid transparent;
-  background-clip: padding-box;
-  position: relative;
+  background: rgba(6, 6, 9, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .glass-header::after {
   content: '';
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  mask-image: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0,0,0,1) 10%,
-    rgba(0,0,0,1) 90%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0,0,0,1) 10%,
-    rgba(0,0,0,1) 90%,
-    transparent 100%
-  );
-}
-
-/* Header bottom glow line */
-.glass-header::before {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 5%;
-  right: 5%;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: 1px;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 122, 0, 0.25) 20%,
-    rgba(61, 214, 208, 0.15) 50%,
-    rgba(255, 122, 0, 0.25) 80%,
+    rgba(255, 106, 0, 0.12) 30%,
+    rgba(255, 106, 0, 0.12) 70%,
     transparent
   );
 }
 
-/* ── Liquid Glass Footer ── */
+/* ═══════════════════════════════════════════════════════════════════
+   FOOTER — invisible except for text
+   ═══════════════════════════════════════════════════════════════════ */
+
 .glass-footer {
-  background: linear-gradient(
-    0deg,
-    rgba(8, 8, 18, 0.9) 0%,
-    rgba(8, 8, 18, 0.5) 100%
-  );
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid transparent;
-  background-clip: padding-box;
-  position: relative;
+  background: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.glass-footer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
-}
+/* ═══════════════════════════════════════════════════════════════════
+   CARDS — flat, sharp, single-pixel light border. Heat effect on hover.
+   ═══════════════════════════════════════════════════════════════════ */
 
-/* ── Liquid Glass Card — the core surface ── */
 .glass-card {
   position: relative;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.05) 0%,
-      rgba(255, 255, 255, 0.015) 50%,
-      rgba(255, 255, 255, 0.03) 100%
-    );
-  backdrop-filter: blur(12px) saturate(120%);
-  -webkit-backdrop-filter: blur(12px) saturate(120%);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    border-color 0.2s ease,
+    background 0.3s ease;
 }
 
-/* Liquid edge: subtle iridescent gradient border glow */
+/* Heat bloom from bottom edge on hover */
 .glass-card::before {
   content: '';
   position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
+  inset: auto 0 0 0;
+  height: 0%;
   background: linear-gradient(
-    135deg,
-    rgba(255, 122, 0, 0.12),
-    rgba(61, 214, 208, 0.06),
-    rgba(255, 122, 0, 0.08),
-    rgba(229, 46, 113, 0.05)
+    0deg,
+    rgba(255, 106, 0, 0.08) 0%,
+    rgba(255, 106, 0, 0.02) 60%,
+    transparent 100%
   );
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: xor;
+  transition: height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
+  z-index: 1;
 }
 
 .glass-card:hover::before {
-  opacity: 1;
+  height: 100%;
 }
 
-/* Specular highlight sweep */
-.glass-card::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -60%;
-  width: 60%;
-  height: 200%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.04),
-    rgba(255, 255, 255, 0.07),
-    rgba(255, 255, 255, 0.04),
-    transparent
-  );
-  transform: skewX(-15deg);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s ease;
+.glass-card:hover {
+  border-color: rgba(255, 106, 0, 0.2);
+  background: rgba(255, 255, 255, 0.025);
 }
 
-.glass-card:hover::after {
-  opacity: 1;
-  animation: specular-sweep 1.8s ease-in-out infinite;
-}
+/* ═══════════════════════════════════════════════════════════════════
+   BUTTONS — precision instrument controls
+   ═══════════════════════════════════════════════════════════════════ */
 
-/* Interactive card: subtle float on hover */
-.glass-card.interactive:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 122, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-/* ── Liquid Glass Button ── */
 .glass-button {
   position: relative;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 122, 0, 0.18) 0%,
-      rgba(255, 122, 0, 0.08) 50%,
-      rgba(229, 46, 113, 0.10) 100%
-    );
-  border: 1px solid rgba(255, 122, 0, 0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #fff;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 106, 0, 0.08);
+  border: 1px solid rgba(255, 106, 0, 0.15);
+  color: #FF8C3D;
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
 }
 
 .glass-button:hover {
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 122, 0, 0.28) 0%,
-      rgba(255, 122, 0, 0.15) 50%,
-      rgba(229, 46, 113, 0.15) 100%
-    );
-  border-color: rgba(255, 122, 0, 0.35);
+  background: rgba(255, 106, 0, 0.15);
+  border-color: rgba(255, 106, 0, 0.3);
   box-shadow:
-    0 4px 20px rgba(255, 122, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transform: translateY(-1px);
+    0 0 20px rgba(255, 106, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .glass-button:active {
-  transform: translateY(0px) scale(0.98);
+  background: rgba(255, 106, 0, 0.2);
+  transform: scale(0.97);
 }
 
-/* ── Remove default search input clear button ── */
+/* ═══════════════════════════════════════════════════════════════════
+   SEARCH INPUT — WebKit overrides
+   ═══════════════════════════════════════════════════════════════════ */
+
 input[type="search"]::-webkit-search-decoration,
 input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-results-button,
@@ -283,17 +227,31 @@ input[type="search"]::-webkit-search-results-decoration {
   display: none;
 }
 
-/* ── Scrollbar styling ── */
-::-webkit-scrollbar {
-  width: 6px;
+/* ═══════════════════════════════════════════════════════════════════
+   SCROLLBAR — invisible
+   ═══════════════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.04); border-radius: 2px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   GLOBAL TYPOGRAPHY
+   ═══════════════════════════════════════════════════════════════════ */
+
+html {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-feature-settings: "ss02", "ss03";
+  -webkit-font-smoothing: antialiased;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+body {
+  background: #060609;
+  color: #e8e8ef;
 }
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.14);
+
+/* Selection glow */
+::selection {
+  background: rgba(255, 106, 0, 0.25);
+  color: #fff;
 }
