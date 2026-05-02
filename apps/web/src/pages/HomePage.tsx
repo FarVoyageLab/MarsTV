@@ -72,7 +72,7 @@ export function HomePage() {
 				</p>
 
 				{/* Search — hero element */}
-				<div className="relative z-10 w-full max-w-xl">
+				<div className="relative z-10 w-full max-w-2xl">
 					<SearchBox
 						size="lg"
 						onSearch={(q) => navigate(`/search?q=${encodeURIComponent(q)}`)}
