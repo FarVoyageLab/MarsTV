@@ -10,7 +10,6 @@ import { EpisodeGrid } from '@marstv/ui-web';
 import { FavoriteButton } from '@marstv/ui-web';
 import { SubscribeButton } from '@marstv/ui-web';
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -47,10 +46,10 @@ function asInt(v: string | string[] | undefined, fallback = 0): number {
   return Number.isFinite(n) && n >= 0 ? n : fallback;
 }
 
-function buildProxied(targetUrl: string, origin: string): string {
+function buildProxied(targetUrl: string): string {
   const { token, expiresAt } = signProxyUrl(targetUrl);
   const q = new URLSearchParams({ u: targetUrl, e: String(expiresAt), s: token });
-  return `${origin}/api/proxy/m3u8?${q.toString()}`;
+  return `/api/proxy/m3u8?${q.toString()}`;
 }
 
 // CMS vod_content often contains raw HTML (p/br/em). We don't want the player
@@ -100,13 +99,7 @@ export default async function PlayPage(props: { params: Params; searchParams: Se
   const episode = line.episodes[epIdx];
   if (!episode) notFound();
 
-  // Build signed proxy URL server-side. The client player only sees the
-  // opaque /api/proxy/m3u8?u=...&e=...&s=... URL; upstream target is hidden.
-  const h = await headers();
-  const host = h.get('host') ?? 'localhost:3000';
-  const proto = h.get('x-forwarded-proto') ?? 'http';
-  const origin = `${proto}://${host}`;
-  const playbackUrl = buildProxied(episode.url, origin);
+  const playbackUrl = buildProxied(episode.url);
 
   // Auto-advance: if we're mid-line, point at next episode; same line, next ep.
   // Last episode of the line → no auto-advance (don't jump lines silently).
@@ -126,9 +119,7 @@ export default async function PlayPage(props: { params: Params; searchParams: Se
   // click has the manifest (and its first segments) already hot. 5-min bucketed
   // expiry in signProxyUrl means this URL is byte-identical across users.
   const nextEpisodeUpstream = nextEpIdx !== null ? line.episodes[nextEpIdx]?.url : undefined;
-  const nextPlaybackUrl = nextEpisodeUpstream
-    ? buildProxied(nextEpisodeUpstream, origin)
-    : undefined;
+  const nextPlaybackUrl = nextEpisodeUpstream ? buildProxied(nextEpisodeUpstream) : undefined;
   // Fallback line for the error overlay: next line (wrap to 0 if we're on
   // the last line). The server clamps `ep` to that line's episode count, so
   // pass the current episode index verbatim — /play will land on whichever
