@@ -1,36 +1,31 @@
-import { loadSources } from "@marstv/core";
+import { createApiClient, searchCms } from "@marstv/api";
+import { loadSources, type VideoItem } from "@marstv/core";
+import { SearchBox, VideoCard } from "@marstv/ui";
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
-import { getDetail } from "../lib/api";
-import type { VideoDetail } from "@marstv/core";
+import { useNavigate } from "react-router";
+
+const api = createApiClient("");
 
 export function HomePage() {
   const [sources] = useState(() => loadSources());
-  const [featured, setFeatured] = useState<VideoDetail[]>([]);
+  const [featured, setFeatured] = useState<{ source: string; items: VideoItem[] }[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Load featured content from first few sources
-    const load = async () => {
-      const results = await Promise.allSettled(
-        sources.slice(0, 3).map(async (s) => {
-          // Try a few popular IDs from each source
-          for (const id of ["1", "2", "3"]) {
-            try {
-              return await getDetail(s, id);
-            } catch {
-              continue;
-            }
-          }
-          return null;
-        }),
-      );
+    if (sources.length === 0) return;
+    Promise.allSettled(
+      sources.slice(0, 6).map(async (s) => {
+        const { list } = await searchCms(api, s.key, "", 1);
+        return { source: s.key, items: list.slice(0, 6) };
+      }),
+    ).then((results) => {
       setFeatured(
         results
-          .filter((r): r is PromiseFulfilledResult<VideoDetail> => r.status === "fulfilled" && r.value !== null)
-          .map((r) => r.value),
+          .filter((r): r is PromiseFulfilledResult<{ source: string; items: VideoItem[] }> => r.status === "fulfilled")
+          .map((r) => r.value)
+          .filter((r) => r.items.length > 0),
       );
-    };
-    if (sources.length > 0) load();
+    });
   }, [sources]);
 
   return (
@@ -42,43 +37,29 @@ export function HomePage() {
           </span>
           <span className="ml-3 text-lg font-normal text-muted-foreground">更快、更好看、全端可用</span>
         </h1>
-        <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-          跨平台开源影视聚合浏览器，多源测速择优、边缘缓存代理、追剧订阅。
-        </p>
+        <div className="mt-6 max-w-xl">
+          <SearchBox
+            onSearch={(q) => navigate(`/search?q=${encodeURIComponent(q)}`)}
+            placeholder="搜索电影、电视剧..."
+          />
+        </div>
       </section>
 
       {featured.length > 0 ? (
-        <section>
-          <h2 className="mb-4 text-lg font-semibold">精选推荐</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {featured.map((v) => (
-              <Link
-                key={`${v.source}:${v.id}`}
-                to={`/play/${v.source}/${v.id}`}
-                className="glass-card group overflow-hidden rounded-lg transition-all hover:border-primary/30"
-              >
-                {v.poster ? (
-                  <img
-                    src={v.poster}
-                    alt={v.title}
-                    className="aspect-[2/3] w-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="flex aspect-[2/3] items-center justify-center bg-surface/40 text-xs text-dim-foreground">
-                    暂无封面
-                  </div>
-                )}
-                <div className="p-2">
-                  <p className="truncate text-xs font-medium group-hover:text-primary">{v.title}</p>
-                  {v.remarks ? (
-                    <p className="mt-0.5 truncate text-[10px] text-dim-foreground">{v.remarks}</p>
-                  ) : null}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        featured.map((group) => (
+          <section key={group.source} className="mb-8">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+              {group.items.map((v) => (
+                <VideoCard
+                  key={`${group.source}:${v.id}`}
+                  item={v}
+                  sourceKey={group.source}
+                  onNavigate={(href) => navigate(href)}
+                />
+              ))}
+            </div>
+          </section>
+        ))
       ) : (
         <section className="flex flex-col items-center justify-center py-20 text-center">
           <div className="mb-4 text-5xl">📺</div>

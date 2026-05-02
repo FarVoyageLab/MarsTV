@@ -1,7 +1,10 @@
-import { findSource, getDetail, type VideoDetail } from "@marstv/core";
-import { Fragment, useEffect, useRef, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router";
-import { getDetail as apiGetDetail } from "../lib/api";
+import { buildProxyUrl, createApiClient, getDetail } from "@marstv/api";
+import { findSource, loadSourcesFromRequest, type VideoDetail } from "@marstv/core";
+import { EpisodeGrid, FavoriteButton, PlayerEmbed, SubscribeButton } from "@marstv/ui";
+import { createContext, useContext, useMemo, useState, useEffect } from "react";
+import { Link, useParams, useSearchParams, useNavigate } from "react-router";
+
+const api = createApiClient("");
 
 function asInt(v: string | null, fallback = 0): number {
   if (!v) return fallback;
@@ -12,11 +15,10 @@ function asInt(v: string | null, fallback = 0): number {
 export function PlayPage() {
   const { source: sourceKey, id } = useParams<{ source: string; id: string }>();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [detail, setDetail] = useState<VideoDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const hlsRef = useRef<unknown>(null);
 
   const source = sourceKey ? findSource(sourceKey) : undefined;
 
@@ -24,9 +26,9 @@ export function PlayPage() {
     if (!source || !id) return;
     setLoading(true);
     setError(null);
-    apiGetDetail(source, id)
+    getDetail(api, source.key, id)
       .then(setDetail)
-      .catch((err) => setError(err instanceof Error ? err.message : String(err)))
+      .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, [source, id]);
 
@@ -87,59 +89,66 @@ export function PlayPage() {
   const nextEpIdx = epIdx + 1 < line.episodes.length ? epIdx + 1 : null;
   const prevEpIdx = epIdx > 0 ? epIdx - 1 : null;
 
+  const playbackUrl = buildProxyUrl(episode.url);
+
+  const nextHref =
+    nextEpIdx !== null
+      ? `/play/${sourceKey}/${id}?line=${lineIdx}&ep=${nextEpIdx}`
+      : undefined;
+  const prevHref =
+    prevEpIdx !== null
+      ? `/play/${sourceKey}/${id}?line=${lineIdx}&ep=${prevEpIdx}`
+      : undefined;
+
   return (
     <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
-      {/* Header */}
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <h1 className="text-2xl font-semibold tracking-tight">{detail.title}</h1>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="rounded bg-surface/40 px-1.5 py-0.5">{sourceName}</span>
-          {detail.year ? <span>{detail.year}</span> : null}
-          {detail.area ? <span>· {detail.area}</span> : null}
-          {detail.category ? <span>· {detail.category}</span> : null}
-          {detail.remarks ? <span className="text-primary">· {detail.remarks}</span> : null}
+        <div className="flex items-center gap-3">
+          <FavoriteButton
+            source={sourceKey}
+            sourceName={sourceName}
+            id={id}
+            title={detail.title}
+            poster={detail.poster}
+          />
+          <SubscribeButton
+            source={sourceKey}
+            sourceName={sourceName}
+            id={id}
+            title={detail.title}
+            poster={detail.poster}
+            lineIdx={lineIdx}
+            lineName={line.name}
+            episodeCount={Math.max(...lines.map((l) => l.episodes.length))}
+          />
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <span className="rounded bg-surface/40 px-1.5 py-0.5">{sourceName}</span>
+            {detail.year ? <span>{detail.year}</span> : null}
+          </div>
         </div>
       </div>
 
-      {/* Player */}
-      <div className="relative overflow-hidden rounded-lg border border-border/20 bg-black">
-        <video
-          ref={videoRef}
-          className="aspect-video w-full"
-          controls
-          poster={detail.poster}
-          crossOrigin="anonymous"
-          playsInline
-        >
-          <source src={episode.url} type="application/vnd.apple.mpegurl" />
-          您的浏览器不支持视频播放
-        </video>
-      </div>
+      <PlayerEmbed
+        src={playbackUrl}
+        poster={detail.poster}
+        title={`${detail.title} · ${line.name} · ${episode.title}`}
+        progressKey={`${sourceKey}:${id}:${lineIdx}:${epIdx}`}
+        nextHref={nextHref}
+        prevHref={prevHref}
+        record={{
+          source: sourceKey,
+          sourceName,
+          id,
+          title: detail.title,
+          poster: detail.poster,
+          lineIdx,
+          lineName: line.name,
+          epIdx,
+        }}
+        onNavigate={(href) => navigate(href)}
+      />
 
-      {/* Episode navigation */}
-      <div className="mt-4 flex items-center justify-between gap-4">
-        {prevEpIdx !== null ? (
-          <Link
-            to={`/play/${sourceKey}/${id}?line=${lineIdx}&ep=${prevEpIdx}`}
-            className="glass-card rounded-full px-4 py-1.5 text-xs transition-all hover:border-primary/30"
-          >
-            ← 上一集
-          </Link>
-        ) : <div />}
-        <span className="text-xs text-dim-foreground">
-          {line.name} · {episode.title}
-        </span>
-        {nextEpIdx !== null ? (
-          <Link
-            to={`/play/${sourceKey}/${id}?line=${lineIdx}&ep=${nextEpIdx}`}
-            className="glass-card rounded-full px-4 py-1.5 text-xs transition-all hover:border-primary/30"
-          >
-            下一集 →
-          </Link>
-        ) : <div />}
-      </div>
-
-      {/* Lines */}
       {lines.length > 1 ? (
         <section className="mt-6">
           <h2 className="mb-2 text-sm font-medium">线路</h2>
@@ -161,26 +170,17 @@ export function PlayPage() {
         </section>
       ) : null}
 
-      {/* Episode grid */}
       <section className="mt-6">
         <h2 className="mb-2 text-sm font-medium">
           剧集 <span className="text-dim-foreground">· 共 {line.episodes.length} 集</span>
         </h2>
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
-          {line.episodes.map((ep, i) => (
-            <Link
-              key={`${ep.title}:${i}`}
-              to={`/play/${sourceKey}/${id}?line=${lineIdx}&ep=${i}`}
-              className={`truncate rounded-md border px-2 py-1.5 text-center text-xs transition-colors ${
-                i === epIdx
-                  ? "border-primary bg-primary/15 text-primary"
-                  : "border-border/40 bg-surface/40 text-muted-foreground hover:border-border-strong hover:text-foreground"
-              }`}
-            >
-              {ep.title}
-            </Link>
-          ))}
-        </div>
+        <EpisodeGrid
+          source={sourceKey}
+          id={id}
+          lineIdx={lineIdx}
+          currentEpIdx={epIdx}
+          episodes={line.episodes}
+        />
       </section>
 
       {detail.desc ? (

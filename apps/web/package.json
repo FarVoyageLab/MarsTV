@@ -7,9 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@marstv/api": "workspace:*",
     "@marstv/core": "workspace:*",
     "@marstv/ui": "workspace:*",
     "react": "catalog:",
@@ -30,6 +32,7 @@
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "wrangler": "catalog:"
   }
 }
