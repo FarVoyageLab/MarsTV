@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { createBrowserRouter, RouterProvider } from "react-router";
 import { RootLayout } from "./layouts/RootLayout";
 import { DoubanPage } from "./pages/DoubanPage";
 import { FavoritesPage } from "./pages/FavoritesPage";
@@ -13,22 +13,25 @@ import { SearchPage } from "./pages/SearchPage";
 import { SubscriptionsPage } from "./pages/SubscriptionsPage";
 import "./index.css";
 
+const router = createBrowserRouter([
+	{
+		element: <RootLayout />,
+		children: [
+			{ index: true, element: <HomePage /> },
+			{ path: "search", element: <SearchPage /> },
+			{ path: "play/:source/:id", element: <PlayPage /> },
+			{ path: "douban", element: <DoubanPage /> },
+			{ path: "favorites", element: <FavoritesPage /> },
+			{ path: "history", element: <HistoryPage /> },
+			{ path: "subscriptions", element: <SubscriptionsPage /> },
+			{ path: "login", element: <LoginPage /> },
+			{ path: "*", element: <NotFoundPage /> },
+		],
+	},
+]);
+
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
-		<BrowserRouter>
-			<Routes>
-				<Route element={<RootLayout />}>
-					<Route index element={<HomePage />} />
-					<Route path="search" element={<SearchPage />} />
-					<Route path="play/:source/:id" element={<PlayPage />} />
-					<Route path="douban" element={<DoubanPage />} />
-					<Route path="favorites" element={<FavoritesPage />} />
-					<Route path="history" element={<HistoryPage />} />
-					<Route path="subscriptions" element={<SubscriptionsPage />} />
-					<Route path="login" element={<LoginPage />} />
-					<Route path="*" element={<NotFoundPage />} />
-				</Route>
-			</Routes>
-		</BrowserRouter>
+		<RouterProvider router={router} />
 	</StrictMode>,
 );
