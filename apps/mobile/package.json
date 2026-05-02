@@ -12,6 +12,9 @@
 	},
 	"dependencies": {
 		"@expo/vector-icons": "catalog:",
+		"@marstv/api": "workspace:*",
+		"@marstv/core": "workspace:*",
+		"@marstv/ui": "workspace:*",
 		"@react-navigation/bottom-tabs": "catalog:",
 		"@react-navigation/elements": "catalog:",
 		"@react-navigation/native": "catalog:",

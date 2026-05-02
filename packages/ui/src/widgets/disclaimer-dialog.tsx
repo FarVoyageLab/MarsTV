@@ -59,7 +59,7 @@ export function DisclaimerDialog() {
 					</p>
 				</div>
 				<div className="mt-6 flex justify-end gap-3">
-					<Button variant="ghost" asChild>
+					<Button variant="ghost">
 						<a
 							href="https://github.com/marstv"
 							target="_blank"

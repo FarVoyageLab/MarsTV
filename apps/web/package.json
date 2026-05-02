@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -19,7 +19,9 @@
     "react-router": "catalog:"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "catalog:",
     "@eslint/js": "catalog:",
+    "@react-router/dev": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
@@ -30,9 +32,11 @@
     "eslint-plugin-react-refresh": "catalog:",
     "globals": "catalog:",
     "tailwindcss": "catalog:",
+    "@marstv/typescript-config": "workspace:*",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "vite": "catalog:",
+    "vite-tsconfig-paths": "catalog:",
     "wrangler": "catalog:"
   }
 }

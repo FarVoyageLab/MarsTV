@@ -21,6 +21,7 @@
 	"devDependencies": {
 		"@types/node": "catalog:",
 		"typescript": "catalog:",
-		"vitest": "catalog:"
+		"vitest": "catalog:",
+		"@marstv/typescript-config": "workspace:*"
 	}
 }

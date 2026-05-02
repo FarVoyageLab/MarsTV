@@ -4,7 +4,8 @@
 	"private": true,
 	"exports": {
 		".": "./src/index.ts",
-		"./*": "./src/**/*.tsx"
+		"./*": "./src/**/*.tsx",
+		"./styles/globals.css": "./src/styles/globals.css"
 	},
 	"scripts": {
 		"lint": "eslint . --max-warnings 0",
@@ -14,10 +15,13 @@
 	"devDependencies": {
 		"@marstv/eslint-config": "workspace:*",
 		"@marstv/typescript-config": "workspace:*",
+		"@marstv/core": "workspace:*",
 		"@types/node": "catalog:",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
+		"artplayer": "catalog:",
 		"eslint": "catalog:",
+		"hls.js": "catalog:",
 		"typescript": "catalog:"
 	},
 	"dependencies": {
@@ -39,6 +43,7 @@
 		"sonner": "catalog:",
 		"tailwind-merge": "catalog:",
 		"tw-animate-css": "catalog:",
-		"vaul": "catalog:"
+		"vaul": "catalog:",
+		"@marstv/core": "workspace:*"
 	}
 }

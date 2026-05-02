@@ -1,88 +1,174 @@
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { useScreenDimensions } from '@/hooks/use-screen-dimensions';
+import { TVFocusGuideView } from "@/components/tv-focus-guide";
+import { useScreenDimensions } from "@/hooks/use-screen-dimensions";
+import { useTheme } from "@/hooks/use-theme";
 
 export default function HomeScreen() {
-  const styles = useHomeStyles();
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedView style={styles.titleContainer}>
-            <ThemedText type="title" style={styles.title}>
-              {`Welcome to Expo ${
-                Platform.isTV ? 'TV' : Platform.OS === 'web' ? 'web' : 'mobile'
-              }`}
-            </ThemedText>
-          </ThemedView>
-        </ThemedView>
+	const { scale, spacing } = useScreenDimensions();
+	const theme = useTheme();
+	const insets = useSafeAreaInsets();
+	const styles = useHomeStyles();
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+	return (
+		<ScrollView
+			style={[styles.scroll, { backgroundColor: theme.background }]}
+			contentContainerStyle={{
+				paddingTop: insets.top + spacing.four,
+				paddingBottom: insets.bottom + spacing.six,
+			}}
+		>
+			{/* Hero section */}
+			<TVFocusGuideView autoFocus style={styles.heroSection}>
+				<Text style={[styles.heroTitle, { color: theme.text }]}>MarsTV</Text>
+				<Text style={[styles.heroSubtitle, { color: theme.textSecondary }]}>
+					跨平台开源影视聚合
+				</Text>
+			</TVFocusGuideView>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow title="Try editing" hint="src/app/(tabs)/index.tsx" />
-          <HintRow title="Dev tools" hint="cmd+d" />
-          <HintRow title="Fresh start" hint="npm reset project" />
-        </ThemedView>
+			{/* Quick links */}
+			<TVFocusGuideView style={styles.quickLinks}>
+				<Text style={[styles.sectionTitle, { color: theme.text }]}>
+					快速入口
+				</Text>
+				<View style={styles.quickLinkRow}>
+					<QuickLinkCard
+						label="搜索"
+						description="搜索影视剧、番剧"
+						emoji="🔍"
+						scale={scale}
+						theme={theme}
+					/>
+					<QuickLinkCard
+						label="豆瓣"
+						description="排行榜和推荐"
+						emoji="⭐"
+						scale={scale}
+						theme={theme}
+					/>
+					<QuickLinkCard
+						label="追剧"
+						description="查看订阅更新"
+						emoji="❤️"
+						scale={scale}
+						theme={theme}
+					/>
+				</View>
+			</TVFocusGuideView>
 
-        <WebBadge />
-      </SafeAreaView>
-    </ThemedView>
-  );
+			{/* Instructions */}
+			<TVFocusGuideView style={styles.instructions}>
+				<Text style={[styles.sectionTitle, { color: theme.text }]}>
+					开始使用
+				</Text>
+				<Text style={[styles.instructionText, { color: theme.textSecondary }]}>
+					1. 前往 搜索 页面搜索你喜欢的影视剧{"\n"}
+					2. 选择视频源并观看{"\n"}
+					3. 在 追剧 页面查看订阅更新
+				</Text>
+			</TVFocusGuideView>
+		</ScrollView>
+	);
+}
+
+function QuickLinkCard({
+	label,
+	description,
+	emoji,
+	scale,
+	theme,
+}: {
+	label: string;
+	description: string;
+	emoji: string;
+	scale: number;
+	theme: ReturnType<typeof useTheme>;
+}) {
+	const styles = useHomeStyles();
+
+	return (
+		<View
+			style={[
+				styles.quickLinkCard,
+				{ backgroundColor: theme.backgroundElement },
+			]}
+		>
+			<Text style={styles.quickLinkEmoji}>{emoji}</Text>
+			<Text style={[styles.quickLinkLabel, { color: theme.text }]}>
+				{label}
+			</Text>
+			<Text
+				style={[styles.quickLinkDesc, { color: theme.textSecondary }]}
+				numberOfLines={2}
+			>
+				{description}
+			</Text>
+		</View>
+	);
 }
 
 const useHomeStyles = () => {
-  const { spacing, width, landscape } = useScreenDimensions();
-
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      width,
-    },
-    safeArea: {
-      marginTop: landscape ? spacing.six : 0,
-      marginBottom: landscape ? spacing.two : spacing.six,
-      paddingHorizontal: spacing.four,
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-      gap: spacing.three,
-      maxWidth: width * 0.8,
-    },
-    heroSection: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      flex: 1,
-      paddingHorizontal: spacing.four,
-      gap: landscape ? spacing.one : spacing.four,
-      marginBottom: landscape ? spacing.four : spacing.six,
-    },
-    titleContainer: {
-      marginTop: landscape ? spacing.two : 0,
-    },
-    title: {
-      textAlign: 'center',
-    },
-    code: {
-      lineHeight: spacing.four,
-      textTransform: 'uppercase',
-    },
-    stepContainer: {
-      gap: spacing.three,
-      alignSelf: 'stretch',
-      paddingHorizontal: spacing.three,
-      paddingVertical: spacing.four,
-      borderRadius: spacing.four,
-    },
-  });
+	const { spacing, scale } = useScreenDimensions();
+	const theme = useTheme();
+	return StyleSheet.create({
+		scroll: {
+			flex: 1,
+		},
+		heroSection: {
+			alignItems: "center",
+			paddingVertical: spacing.six,
+			gap: spacing.two,
+		},
+		heroTitle: {
+			fontSize: 52 * scale,
+			fontWeight: "800",
+			letterSpacing: 2,
+		},
+		heroSubtitle: {
+			fontSize: 20 * scale,
+			fontWeight: "500",
+		},
+		quickLinks: {
+			paddingHorizontal: spacing.four,
+			marginBottom: spacing.five,
+		},
+		sectionTitle: {
+			fontSize: 26 * scale,
+			fontWeight: "700",
+			marginBottom: spacing.three,
+		},
+		quickLinkRow: {
+			flexDirection: "row",
+			gap: spacing.three,
+			justifyContent: "center",
+		},
+		quickLinkCard: {
+			width: 200 * scale,
+			padding: spacing.four,
+			borderRadius: 16 * scale,
+			alignItems: "center",
+			gap: spacing.two,
+		},
+		quickLinkEmoji: {
+			fontSize: 36 * scale,
+		},
+		quickLinkLabel: {
+			fontSize: 20 * scale,
+			fontWeight: "700",
+		},
+		quickLinkDesc: {
+			fontSize: 14 * scale,
+			textAlign: "center",
+		},
+		instructions: {
+			paddingHorizontal: spacing.four,
+			marginBottom: spacing.five,
+		},
+		instructionText: {
+			fontSize: 16 * scale,
+			lineHeight: 28 * scale,
+		},
+	});
 };

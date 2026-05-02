@@ -1,0 +1,46 @@
+@import "tailwindcss";
+@import "@marstv/ui/styles/globals.css";
+
+/* Deep-space animated background */
+.marstv-space-bg {
+	background:
+		radial-gradient(
+			ellipse at 50% 0%,
+			rgba(255, 107, 53, 0.06) 0%,
+			transparent 60%
+		),
+		radial-gradient(
+			ellipse at 85% 20%,
+			rgba(100, 80, 255, 0.04) 0%,
+			transparent 50%
+		),
+		linear-gradient(180deg, #0a0a0f 0%, #0f0f1a 40%, #0d0d18 100%);
+}
+
+.glass-header {
+	background: rgba(15, 15, 26, 0.72);
+	backdrop-filter: blur(16px) saturate(140%);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-footer {
+	background: rgba(10, 10, 15, 0.8);
+	backdrop-filter: blur(12px);
+	border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-card {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	backdrop-filter: blur(8px);
+}
+
+.glass-input {
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-button {
+	background: rgba(255, 107, 53, 0.12);
+	border: 1px solid rgba(255, 107, 53, 0.2);
+}

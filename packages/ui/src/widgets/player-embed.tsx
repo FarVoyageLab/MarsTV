@@ -6,6 +6,7 @@ import type { LinkComponent } from "../lib/link-component";
 import { DefaultLink } from "../lib/link-component";
 import { invalidateCardMarkers } from "./card-markers";
 
+
 interface PlayRecordMeta {
 	source: string;
 	sourceName?: string;
@@ -128,6 +129,7 @@ export function PlayerEmbed({
 
 		(async () => {
 			try {
+
 				const [{ default: Artplayer }, { default: Hls }] = await Promise.all([
 					import("artplayer"),
 					import("hls.js"),
