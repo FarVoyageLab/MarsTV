@@ -15,7 +15,7 @@
     "test:e2e:ui": "playwright test --ui",
     "build:cf": "opennextjs-cloudflare build",
     "preview:cf": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy:cf": "opennextjs-cloudflare build && wrangler deploy",
+    "deploy:cf": "opennextjs-cloudflare build && opennextjs-cloudflare deploy --keep-vars",
     "build:docker": "docker build -f apps/web/Dockerfile -t marstv/web:local ../..",
     "cf-typegen": "wrangler types"
   },

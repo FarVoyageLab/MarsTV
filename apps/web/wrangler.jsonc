@@ -16,7 +16,8 @@
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "marstv-web"
+      "service": "marstv-web",
+      "environment": "production"
     }
   ],
   // R2 incremental cache
@@ -33,20 +34,22 @@
     "binding": "IMAGES"
   }
   // ============================================================
-  //  All runtime variables MUST be set via `wrangler secret put`.
-  //  Secrets are encrypted at rest and survive wrangler deploy.
+  //  Runtime variables are managed in the Cloudflare Dashboard.
+  //  This file intentionally has no [vars] section.
   //
-  //  Do NOT declare "vars" here — wrangler deploy treats them as
-  //  authoritative and will OVERWRITE any Dashboard-configured
-  //  values with the placeholder/empty strings in this file.
+  //  ALWAYS use --keep-vars when deploying to prevent wrangler
+  //  from deleting Dashboard-configured vars:
+  //    opennextjs-cloudflare deploy --keep-vars
+  //    wrangler deploy --keep-vars
   //
-  //  On first deploy (or after secret rotation), run:
-  //    cd apps/web
-  //    npx wrangler secret put CMS_SOURCES_JSON
-  //    npx wrangler secret put PROXY_SECRET
-  //    npx wrangler secret put SITE_PASSWORD
-  //    npx wrangler secret put ALLOWED_PROXY_HOSTS
-  //    npx wrangler secret put DOUBAN_PROXY_MODE
-  //    ... (repeat for each variable)
+  //  The --keep-vars flag flows through the full chain:
+  //    wrangler deploy → opennextjs-cloudflare deploy → wrangler deploy
+  //
+  //  Cloudflare Workers CI deploy command must also include --keep-vars:
+  //    npx wrangler deploy --keep-vars
+  //
+  //  Secrets (via wrangler secret put) are unaffected by deploys.
+  //  Use secrets for: PROXY_SECRET, SITE_PASSWORD
+  //  Use Dashboard vars for: CMS_SOURCES_JSON, ALLOWED_PROXY_HOSTS, etc.
   // ============================================================
 }
