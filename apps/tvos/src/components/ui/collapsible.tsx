@@ -1,12 +1,12 @@
-import { SymbolView } from 'expo-symbols';
-import { PropsWithChildren, useState } from 'react';
-import { Pressable, StyleSheet, ViewStyle } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import { SymbolView } from "expo-symbols";
+import { PropsWithChildren, useState } from "react";
+import { Pressable, StyleSheet, ViewStyle } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useScreenDimensions } from '@/hooks/use-screen-dimensions';
-import { useTheme } from '@/hooks/use-theme';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { useScreenDimensions } from "@/hooks/use-screen-dimensions";
+import { useTheme } from "@/hooks/use-theme";
 
 export function Collapsible({
   children,
@@ -30,14 +30,14 @@ export function Collapsible({
         <ThemedView type="backgroundElement" style={styles.button}>
           <SymbolView
             name={{
-              ios: 'chevron.right',
-              android: 'chevron_right',
-              web: 'chevron_right',
+              ios: "chevron.right",
+              android: "chevron_right",
+              web: "chevron_right",
             }}
             size={14 * scale}
             weight="bold"
             tintColor={theme.text}
-            style={{ transform: [{ rotate: isOpen ? '-90deg' : '90deg' }] }}
+            style={{ transform: [{ rotate: isOpen ? "-90deg" : "90deg" }] }}
           />
         </ThemedView>
 
@@ -59,9 +59,9 @@ const useCollapsibleStyles = () => {
   const theme = useTheme();
   return StyleSheet.create({
     heading: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      width: '100%',
+      flexDirection: "row",
+      alignItems: "center",
+      width: "100%",
       gap: spacing.two,
       borderRadius: spacing.three,
     },
@@ -75,8 +75,8 @@ const useCollapsibleStyles = () => {
       width: spacing.four,
       height: spacing.four,
       borderRadius: spacing.three,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
     },
     content: {
       marginTop: spacing.three,

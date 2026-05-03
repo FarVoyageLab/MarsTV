@@ -19,7 +19,7 @@ import {
   type PlayRecord,
   type SubscriptionRecord,
   makePlayRecordKey,
-} from './types';
+} from "./types";
 
 /**
  * Minimal hash-oriented Redis client surface. Identical to the IRedisLike in
@@ -46,7 +46,7 @@ export function createRedisStorage(
   client: IRedisLikeStorage,
   options: RedisStorageOptions = {},
 ): IStorage {
-  const namespace = options.namespace ?? 'marstv';
+  const namespace = options.namespace ?? "marstv";
   const historyKey = `${namespace}:history`;
   const favoritesKey = `${namespace}:favorites`;
   const subscriptionsKey = `${namespace}:subscriptions`;
@@ -59,12 +59,22 @@ export function createRedisStorage(
     return Object.values(all).sort((a, b) => b.updatedAt - a.updatedAt);
   }
 
-  async function getPlayRecord(source: string, id: string): Promise<PlayRecord | null> {
-    return (await client.hget<PlayRecord>(historyKey, makePlayRecordKey(source, id))) ?? null;
+  async function getPlayRecord(
+    source: string,
+    id: string,
+  ): Promise<PlayRecord | null> {
+    return (
+      (await client.hget<PlayRecord>(
+        historyKey,
+        makePlayRecordKey(source, id),
+      )) ?? null
+    );
   }
 
   async function putPlayRecord(record: PlayRecord): Promise<void> {
-    await client.hset(historyKey, { [makePlayRecordKey(record.source, record.id)]: record });
+    await client.hset(historyKey, {
+      [makePlayRecordKey(record.source, record.id)]: record,
+    });
     await trimHash<PlayRecord>(
       client,
       historyKey,
@@ -95,7 +105,9 @@ export function createRedisStorage(
   }
 
   async function addFavorite(record: FavoriteRecord): Promise<void> {
-    await client.hset(favoritesKey, { [makePlayRecordKey(record.source, record.id)]: record });
+    await client.hset(favoritesKey, {
+      [makePlayRecordKey(record.source, record.id)]: record,
+    });
     await trimHash<FavoriteRecord>(
       client,
       favoritesKey,
@@ -126,19 +138,29 @@ export function createRedisStorage(
   }
 
   async function hasSubscription(source: string, id: string): Promise<boolean> {
-    const rec = await client.hget(subscriptionsKey, makePlayRecordKey(source, id));
+    const rec = await client.hget(
+      subscriptionsKey,
+      makePlayRecordKey(source, id),
+    );
     return rec !== null;
   }
 
-  async function getSubscription(source: string, id: string): Promise<SubscriptionRecord | null> {
+  async function getSubscription(
+    source: string,
+    id: string,
+  ): Promise<SubscriptionRecord | null> {
     return (
-      (await client.hget<SubscriptionRecord>(subscriptionsKey, makePlayRecordKey(source, id))) ??
-      null
+      (await client.hget<SubscriptionRecord>(
+        subscriptionsKey,
+        makePlayRecordKey(source, id),
+      )) ?? null
     );
   }
 
   async function putSubscription(record: SubscriptionRecord): Promise<void> {
-    await client.hset(subscriptionsKey, { [makePlayRecordKey(record.source, record.id)]: record });
+    await client.hset(subscriptionsKey, {
+      [makePlayRecordKey(record.source, record.id)]: record,
+    });
     await trimHash<SubscriptionRecord>(
       client,
       subscriptionsKey,
@@ -157,7 +179,9 @@ export function createRedisStorage(
     if (updates.length === 0) return;
     const all = await client.hgetall<SubscriptionRecord>(subscriptionsKey);
     if (!all) return;
-    const byKey = new Map(updates.map((u) => [makePlayRecordKey(u.source, u.id), u]));
+    const byKey = new Map(
+      updates.map((u) => [makePlayRecordKey(u.source, u.id), u]),
+    );
     const now = Date.now();
     const patch: Record<string, SubscriptionRecord> = {};
     for (const [key, r] of Object.entries(all)) {
@@ -165,19 +189,32 @@ export function createRedisStorage(
       // silently skip ids user unsubscribed from mid-check
       if (!u) continue;
       // skip when count unchanged and lastCheckedAt is fresh (<1s ago)
-      if (u.latestEpisodeCount === r.latestEpisodeCount && now - r.lastCheckedAt < 1000) {
+      if (
+        u.latestEpisodeCount === r.latestEpisodeCount &&
+        now - r.lastCheckedAt < 1000
+      ) {
         continue;
       }
-      patch[key] = { ...r, latestEpisodeCount: u.latestEpisodeCount, lastCheckedAt: now };
+      patch[key] = {
+        ...r,
+        latestEpisodeCount: u.latestEpisodeCount,
+        lastCheckedAt: now,
+      };
     }
     if (Object.keys(patch).length > 0) {
       await client.hset(subscriptionsKey, patch);
     }
   }
 
-  async function acknowledgeSubscription(source: string, id: string): Promise<void> {
+  async function acknowledgeSubscription(
+    source: string,
+    id: string,
+  ): Promise<void> {
     const key = makePlayRecordKey(source, id);
-    const existing = await client.hget<SubscriptionRecord>(subscriptionsKey, key);
+    const existing = await client.hget<SubscriptionRecord>(
+      subscriptionsKey,
+      key,
+    );
     if (!existing) return;
     if (existing.knownEpisodeCount >= existing.latestEpisodeCount) return;
     await client.hset(subscriptionsKey, {

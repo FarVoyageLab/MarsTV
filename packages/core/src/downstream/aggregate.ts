@@ -2,14 +2,14 @@
 // 多源并发聚合搜索:对每个启用源发起搜索,失败隔离,结果合并去重
 // ============================================================================
 
-import type { CmsSource, VideoItem } from '../types/index';
-import { type SearchResult, searchSource } from './apple-cms';
+import type { CmsSource, VideoItem } from "../types/index";
+import { type SearchResult, searchSource } from "./apple-cms";
 import {
   type ISourceHealthStore,
   dynamicTimeout,
   scoreSource,
   shouldSkipSource,
-} from './source-health';
+} from "./source-health";
 
 export interface AggregateSearchOptions {
   /** 单源超时毫秒,默认 8000 */
@@ -46,7 +46,12 @@ export async function aggregateSearch(
   keyword: string,
   options: AggregateSearchOptions = {},
 ): Promise<AggregateSearchResult> {
-  const { perSourceTimeoutMs = 8000, maxPage = 1, signal, healthStore } = options;
+  const {
+    perSourceTimeoutMs = 8000,
+    maxPage = 1,
+    signal,
+    healthStore,
+  } = options;
 
   const enabled = sources.filter((s) => s.enabled !== false);
   if (enabled.length === 0) return { items: [], sourceStats: [] };
@@ -72,7 +77,7 @@ export async function aggregateSearch(
           ok: false as const,
           tookMs: 0,
           itemCount: 0,
-          error: 'skipped: unhealthy',
+          error: "skipped: unhealthy",
           items: [] as VideoItem[],
         };
       }
@@ -113,7 +118,10 @@ export async function aggregateSearch(
       const tookMs = Date.now() - start;
 
       if (healthStore) {
-        await healthStore.recordFail(source.key, err instanceof Error ? err.message : String(err));
+        await healthStore.recordFail(
+          source.key,
+          err instanceof Error ? err.message : String(err),
+        );
       }
 
       return {
@@ -164,6 +172,9 @@ export async function aggregateSearch(
 
 function normalizeKey(title: string, year?: string): string {
   // 统一全半角、去除空白、小写,避免明显重复
-  const normalized = title.replace(/\s+/g, '').replace(/[　]/g, '').toLowerCase();
-  return `${normalized}|${year ?? ''}`;
+  const normalized = title
+    .replace(/\s+/g, "")
+    .replace(/[　]/g, "")
+    .toLowerCase();
+  return `${normalized}|${year ?? ""}`;
 }

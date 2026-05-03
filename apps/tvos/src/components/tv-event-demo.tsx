@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Platform,
   Pressable,
@@ -7,17 +7,17 @@ import {
   TouchableNativeFeedback,
   TouchableOpacity,
   View,
-} from 'react-native';
+} from "react-native";
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useScreenDimensions } from '@/hooks/use-screen-dimensions';
-import { useTheme } from '@/hooks/use-theme';
-import { LinearGradient } from 'expo-linear-gradient';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { useScreenDimensions } from "@/hooks/use-screen-dimensions";
+import { useTheme } from "@/hooks/use-theme";
+import { LinearGradient } from "expo-linear-gradient";
 
 const useTVEventHandler = Platform.isTV
   ? // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require('react-native').useTVEventHandler
+    require("react-native").useTVEventHandler
   : (_: any) => {};
 
 /**
@@ -42,12 +42,12 @@ export function EventHandlingDemo() {
 
   useTVEventHandler((event: any) => {
     const { eventType, eventKeyAction } = event;
-    if (eventType !== 'focus' && eventType !== 'blur') {
+    if (eventType !== "focus" && eventType !== "blur") {
       setRemoteEventLog((log) =>
         logWithAppendedEntry(
           log,
           `type=${eventType}, action=${
-            eventKeyAction !== undefined ? eventKeyAction : ''
+            eventKeyAction !== undefined ? eventKeyAction : ""
           }`,
         ),
       );
@@ -63,14 +63,14 @@ export function EventHandlingDemo() {
           <View>
             <ThemedText type="smallBold">TV remote events</ThemedText>
             <ThemedText style={styles.logText}>
-              {remoteEventLog.join('\n')}
+              {remoteEventLog.join("\n")}
             </ThemedText>
           </View>
         )}
         <View>
           <ThemedText type="smallBold">Native events</ThemedText>
           <ThemedText style={styles.logText}>
-            {pressableEventLog.join('\n')}
+            {pressableEventLog.join("\n")}
           </ThemedText>
         </View>
       </ThemedView>
@@ -84,7 +84,7 @@ export function EventHandlingDemo() {
           title="TouchableHighlight"
           log={updatePressableLog}
         />
-        {Platform.OS === 'android' ? (
+        {Platform.OS === "android" ? (
           <TouchableNativeFeedbackButton
             title="TouchableNativeFeedback"
             log={updatePressableLog}
@@ -153,7 +153,7 @@ const TouchableOpacityButton = (props: {
       onPressOut={() => props.log(`${props.title} onPressOut`)}
       onLongPress={() => props.log(`${props.title} onLongPress`)}
     >
-      <LinearGradient colors={['#3c9ffe', '#0274df']} style={styles.pressable}>
+      <LinearGradient colors={["#3c9ffe", "#0274df"]} style={styles.pressable}>
         <ThemedText style={styles.pressableText}>{props.title}</ThemedText>
       </LinearGradient>
     </TouchableOpacity>
@@ -179,7 +179,7 @@ const TouchableHighlightButton = (props: {
       onLongPress={() => props.log(`${props.title} onLongPress`)}
     >
       <LinearGradient
-        colors={['#3c9ffe', '#0274df']}
+        colors={["#3c9ffe", "#0274df"]}
         style={styles.touchableHighlightGradient}
       >
         <ThemedText style={styles.pressableText}>{props.title}</ThemedText>
@@ -216,16 +216,16 @@ const useDemoStyles = function () {
   return StyleSheet.create({
     container: {
       flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'center',
+      flexDirection: "row",
+      justifyContent: "center",
       width: width * 0.8,
     },
     logContainer: {
-      flexDirection: 'row',
+      flexDirection: "row",
       padding: spacing.one,
       margin: spacing.one,
-      alignItems: 'flex-start',
-      justifyContent: 'flex-start',
+      alignItems: "flex-start",
+      justifyContent: "flex-start",
     },
     logText: {
       maxHeight: height * 0.5,
@@ -233,8 +233,8 @@ const useDemoStyles = function () {
       fontSize: spacing.two * 1.2,
       margin: spacing.one,
       lineHeight: spacing.two * 1.5,
-      alignSelf: 'flex-start',
-      justifyContent: 'flex-start',
+      alignSelf: "flex-start",
+      justifyContent: "flex-start",
     },
     touchableHighlight: {
       borderRadius: spacing.three,
@@ -254,7 +254,7 @@ const useDemoStyles = function () {
       opacity: 0.5,
     },
     pressableText: {
-      color: 'white',
+      color: "white",
     },
   });
 };

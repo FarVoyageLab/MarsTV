@@ -8,10 +8,10 @@
 // ============================================================================
 
 export {
-	ApiClient,
-	ApiError,
-	ApiTimeoutError,
-	createApiClient,
+  ApiClient,
+  ApiError,
+  ApiTimeoutError,
+  createApiClient,
 } from "./client.js";
 export type { ApiClientOptions } from "./client.js";
 

@@ -1,4 +1,4 @@
-import type { CmsSource, VideoItem } from '../types';
+import type { CmsSource, VideoItem } from "../types";
 
 export interface SourceHit {
   source: CmsSource;
@@ -34,6 +34,9 @@ export function groupHitsByTitle(hits: SourceHit[]): VideoGroup[] {
 }
 
 function normalizeKey(title: string, year?: string): string {
-  const normalized = title.replace(/\s+/g, '').replace(/[　]/g, '').toLowerCase();
-  return `${normalized}|${year ?? ''}`;
+  const normalized = title
+    .replace(/\s+/g, "")
+    .replace(/[　]/g, "")
+    .toLowerCase();
+  return `${normalized}|${year ?? ""}`;
 }

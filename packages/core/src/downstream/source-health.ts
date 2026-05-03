@@ -27,7 +27,10 @@ export interface ISourceHealthStore {
 // ---- Pure helpers (no I/O) ----
 
 /** Score 0..1. Higher = healthier. No record → neutral 0.5. */
-export function scoreSource(rec: SourceHealthRecord | null, now?: number): number {
+export function scoreSource(
+  rec: SourceHealthRecord | null,
+  now?: number,
+): number {
   if (!rec) return 0.5;
 
   const total = rec.okCount + rec.failCount;
@@ -55,7 +58,10 @@ export function scoreSource(rec: SourceHealthRecord | null, now?: number): numbe
 }
 
 /** Whether a source should be skipped entirely (not even tried). */
-export function shouldSkipSource(rec: SourceHealthRecord | null, now?: number): boolean {
+export function shouldSkipSource(
+  rec: SourceHealthRecord | null,
+  now?: number,
+): boolean {
   if (!rec) return false;
   if (rec.consecutiveFails < 5) return false;
   const n = now ?? Date.now();

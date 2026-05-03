@@ -7,9 +7,9 @@ import type { DoubanRequestParams, DoubanResponseData } from "../types.js";
 
 /** Fetch curated Douban rankings (movie / tv categories). */
 export function fetchDouban(
-	client: ApiClient,
-	params: DoubanRequestParams,
-	signal?: AbortSignal,
+  client: ApiClient,
+  params: DoubanRequestParams,
+  signal?: AbortSignal,
 ): Promise<DoubanResponseData> {
-	return client.get<DoubanResponseData>("/api/douban", params, signal);
+  return client.get<DoubanResponseData>("/api/douban", params, signal);
 }

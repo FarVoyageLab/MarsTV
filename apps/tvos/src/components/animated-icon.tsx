@@ -1,9 +1,9 @@
-import { Image } from 'expo-image';
-import { View } from 'react-native';
-import Animated, { Keyframe, Easing } from 'react-native-reanimated';
+import { Image } from "expo-image";
+import { View } from "react-native";
+import Animated, { Keyframe, Easing } from "react-native-reanimated";
 
-import classes from '@/components/animated-icon.module.css';
-import { useAnimatedIconStyles } from '@/hooks/use-animated-styles';
+import classes from "@/components/animated-icon.module.css";
+import { useAnimatedIconStyles } from "@/hooks/use-animated-styles";
 const DURATION = 300;
 
 export function AnimatedSplashOverlay() {
@@ -42,16 +42,16 @@ const logoKeyframe = new Keyframe({
 
 const glowKeyframe = new Keyframe({
   0: {
-    transform: [{ rotateZ: '-180deg' }, { scale: 0.8 }],
+    transform: [{ rotateZ: "-180deg" }, { scale: 0.8 }],
     opacity: 0,
   },
   [DURATION / 1000]: {
-    transform: [{ rotateZ: '0deg' }, { scale: 1 }],
+    transform: [{ rotateZ: "0deg" }, { scale: 1 }],
     opacity: 1,
     easing: Easing.elastic(0.7),
   },
   100: {
-    transform: [{ rotateZ: '7200deg' }],
+    transform: [{ rotateZ: "7200deg" }],
   },
 });
 
@@ -65,7 +65,7 @@ export function AnimatedIcon() {
       >
         <Image
           style={styles.glow}
-          source={require('@/assets/images/logo-glow.png')}
+          source={require("@/assets/images/logo-glow.png")}
         />
       </Animated.View>
 
@@ -82,7 +82,7 @@ export function AnimatedIcon() {
       >
         <Image
           style={styles.image}
-          source={require('@/assets/images/expotv-logo.png')}
+          source={require("@/assets/images/expotv-logo.png")}
         />
       </Animated.View>
     </View>

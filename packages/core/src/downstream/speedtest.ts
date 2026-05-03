@@ -13,7 +13,7 @@
 // correct: CMS lines that respond fast almost always stream fast too.
 // ============================================================================
 
-import type { SpeedTestResult } from '../types/index';
+import type { SpeedTestResult } from "../types/index";
 
 export interface SpeedTestInput {
   source: string;
@@ -50,19 +50,25 @@ function latencyScore(firstChunkMs: number): number {
   if (firstChunkMs <= LATENCY_GOOD_MS) return 1;
   if (firstChunkMs >= LATENCY_BAD_MS) return 0;
   // Linear between anchors.
-  return clamp01(1 - (firstChunkMs - LATENCY_GOOD_MS) / (LATENCY_BAD_MS - LATENCY_GOOD_MS));
+  return clamp01(
+    1 - (firstChunkMs - LATENCY_GOOD_MS) / (LATENCY_BAD_MS - LATENCY_GOOD_MS),
+  );
 }
 
 function bitrateScore(kbps: number): number {
   if (!Number.isFinite(kbps) || kbps <= 0) return 0.3; // unknown → neutral-low
   if (kbps >= BITRATE_GOOD_KBPS) return 1;
   if (kbps <= BITRATE_BAD_KBPS) return 0;
-  return clamp01((kbps - BITRATE_BAD_KBPS) / (BITRATE_GOOD_KBPS - BITRATE_BAD_KBPS));
+  return clamp01(
+    (kbps - BITRATE_BAD_KBPS) / (BITRATE_GOOD_KBPS - BITRATE_BAD_KBPS),
+  );
 }
 
 function composeScore(firstChunkMs: number, kbps: number): number {
   if (firstChunkMs < 0) return 0;
-  const s = LATENCY_WEIGHT * latencyScore(firstChunkMs) + BITRATE_WEIGHT * bitrateScore(kbps);
+  const s =
+    LATENCY_WEIGHT * latencyScore(firstChunkMs) +
+    BITRATE_WEIGHT * bitrateScore(kbps);
   return Math.round(s * 100);
 }
 
@@ -73,7 +79,7 @@ function parseMaxBandwidthKbps(playlist: string): number {
   let max = 0;
   const lines = playlist.split(/\r?\n/);
   for (const line of lines) {
-    if (!line.startsWith('#EXT-X-STREAM-INF:')) continue;
+    if (!line.startsWith("#EXT-X-STREAM-INF:")) continue;
     const m = line.match(/BANDWIDTH=(\d+)/i);
     if (!m || !m[1]) continue;
     const bps = Number.parseInt(m[1], 10);
@@ -93,23 +99,29 @@ export async function testLine(
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   if (externalSignal) {
     if (externalSignal.aborted) ctrl.abort();
-    else externalSignal.addEventListener('abort', onAbort);
+    else externalSignal.addEventListener("abort", onAbort);
   }
 
   const started = Date.now();
   try {
     const res = await fetch(input.url, {
-      method: 'GET',
+      method: "GET",
       // biome-ignore lint/suspicious/noExplicitAny: DOM/RN AbortSignal type mismatch
       signal: ctrl.signal as any,
       headers: {
-        accept: 'application/vnd.apple.mpegurl, application/x-mpegurl, */*',
-        'user-agent': 'Mozilla/5.0 (compatible; MarsTV/0.1 SpeedTest)',
+        accept: "application/vnd.apple.mpegurl, application/x-mpegurl, */*",
+        "user-agent": "Mozilla/5.0 (compatible; MarsTV/0.1 SpeedTest)",
       },
     });
 
     if (!res.ok) {
-      return { source: input.source, line: input.line, firstChunkMs: -1, bitrateKbps: 0, score: 0 };
+      return {
+        source: input.source,
+        line: input.line,
+        firstChunkMs: -1,
+        bitrateKbps: 0,
+        score: 0,
+      };
     }
 
     // "First chunk" = time to full playlist read (m3u8 playlists are tiny,
@@ -126,10 +138,16 @@ export async function testLine(
       score: composeScore(firstChunkMs, bitrateKbps),
     };
   } catch {
-    return { source: input.source, line: input.line, firstChunkMs: -1, bitrateKbps: 0, score: 0 };
+    return {
+      source: input.source,
+      line: input.line,
+      firstChunkMs: -1,
+      bitrateKbps: 0,
+      score: 0,
+    };
   } finally {
     clearTimeout(timer);
-    if (externalSignal) externalSignal.removeEventListener('abort', onAbort);
+    if (externalSignal) externalSignal.removeEventListener("abort", onAbort);
   }
 }
 
@@ -137,7 +155,9 @@ export async function rankLines(
   inputs: SpeedTestInput[],
   opts: SpeedTestOptions = {},
 ): Promise<SpeedTestResult[]> {
-  const results = await Promise.all(inputs.map((input) => testLine(input, opts)));
+  const results = await Promise.all(
+    inputs.map((input) => testLine(input, opts)),
+  );
   // Higher score first; break ties by faster latency.
   return results.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
@@ -148,4 +168,9 @@ export async function rankLines(
 }
 
 // Exported for tests. Not intended as a public API.
-export const _internal = { parseMaxBandwidthKbps, latencyScore, bitrateScore, composeScore };
+export const _internal = {
+  parseMaxBandwidthKbps,
+  latencyScore,
+  bitrateScore,
+  composeScore,
+};

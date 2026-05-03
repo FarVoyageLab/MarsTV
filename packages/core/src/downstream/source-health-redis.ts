@@ -6,7 +6,7 @@
 // app.
 // ============================================================================
 
-import type { ISourceHealthStore, SourceHealthRecord } from './source-health';
+import type { ISourceHealthStore, SourceHealthRecord } from "./source-health";
 
 /**
  * Minimal hash-oriented subset of the Upstash Redis client surface. Any
@@ -30,7 +30,7 @@ export function createRedisSourceHealthStore(
   client: IRedisLike,
   options: RedisHealthStoreOptions = {},
 ): ISourceHealthStore {
-  const namespace = options.namespace ?? 'marstv';
+  const namespace = options.namespace ?? "marstv";
   const hashKey = `${namespace}:source-health`;
 
   function blankRecord(sourceKey: string): SourceHealthRecord {
@@ -53,7 +53,9 @@ export function createRedisSourceHealthStore(
 
   return {
     async get(sourceKey) {
-      return (await client.hget<SourceHealthRecord>(hashKey, sourceKey)) ?? null;
+      return (
+        (await client.hget<SourceHealthRecord>(hashKey, sourceKey)) ?? null
+      );
     },
 
     async list() {

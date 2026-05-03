@@ -9,12 +9,12 @@
 import Constants from "expo-constants";
 
 function getDefaultBaseUrl(): string {
-	// In Expo Go / dev builds on simulator, localhost works.
-	// On physical Apple TV, replace with your dev machine's LAN IP.
-	return "http://localhost:3100";
+  // In Expo Go / dev builds on simulator, localhost works.
+  // On physical Apple TV, replace with your dev machine's LAN IP.
+  return "http://localhost:3100";
 }
 
 export const API_BASE_URL: string =
-	(Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
-	process.env.EXPO_PUBLIC_API_URL ??
-	getDefaultBaseUrl();
+  (Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
+  process.env.EXPO_PUBLIC_API_URL ??
+  getDefaultBaseUrl();

@@ -1,11 +1,11 @@
-import { Image } from 'expo-image';
-import React from 'react';
-import { StyleSheet, useColorScheme } from 'react-native';
-import { version as expoVersion } from 'expo/package.json';
+import { Image } from "expo-image";
+import React from "react";
+import { StyleSheet, useColorScheme } from "react-native";
+import { version as expoVersion } from "expo/package.json";
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { useScreenDimensions } from '@/hooks/use-screen-dimensions';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { useScreenDimensions } from "@/hooks/use-screen-dimensions";
 
 export function WebBadge() {
   const scheme = useColorScheme();
@@ -21,9 +21,9 @@ export function WebBadge() {
       </ThemedText>
       <Image
         source={
-          scheme === 'dark'
-            ? require('@/assets/images/expo-badge-white.png')
-            : require('@/assets/images/expo-badge.png')
+          scheme === "dark"
+            ? require("@/assets/images/expo-badge-white.png")
+            : require("@/assets/images/expo-badge.png")
         }
         style={styles.badgeImage}
       />
@@ -36,14 +36,14 @@ const useBadgeStyles = () => {
   return StyleSheet.create({
     container: {
       padding: spacing.three,
-      alignItems: 'center',
+      alignItems: "center",
       gap: spacing.two,
       paddingHorizontal: spacing.four,
       paddingVertical: spacing.two,
       borderRadius: spacing.five,
     },
     versionText: {
-      textAlign: 'center',
+      textAlign: "center",
     },
     badgeImage: {
       width: 123 * scale,

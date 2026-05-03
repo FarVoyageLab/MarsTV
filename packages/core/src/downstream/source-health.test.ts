@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 import {
   type ISourceHealthStore,
   type SourceHealthRecord,
@@ -6,11 +6,13 @@ import {
   dynamicTimeout,
   scoreSource,
   shouldSkipSource,
-} from './source-health';
+} from "./source-health";
 
-function makeRecord(overrides: Partial<SourceHealthRecord> = {}): SourceHealthRecord {
+function makeRecord(
+  overrides: Partial<SourceHealthRecord> = {},
+): SourceHealthRecord {
   return {
-    sourceKey: 'test',
+    sourceKey: "test",
     okCount: 0,
     failCount: 0,
     consecutiveFails: 0,
@@ -28,16 +30,16 @@ function makeTime(hoursAgo: number): number {
 
 // ---- scoreSource ----
 
-describe('scoreSource', () => {
-  it('returns 0.5 for null record (neutral default)', () => {
+describe("scoreSource", () => {
+  it("returns 0.5 for null record (neutral default)", () => {
     expect(scoreSource(null)).toBe(0.5);
   });
 
-  it('returns 0.5 for a record with no events', () => {
+  it("returns 0.5 for a record with no events", () => {
     expect(scoreSource(makeRecord())).toBe(0.5);
   });
 
-  it('approaches 1 for a perfect source', () => {
+  it("approaches 1 for a perfect source", () => {
     const rec = makeRecord({
       okCount: 100,
       failCount: 0,
@@ -47,7 +49,7 @@ describe('scoreSource', () => {
     expect(scoreSource(rec)).toBeGreaterThan(0.95);
   });
 
-  it('drops below 0.1 when consecutiveFails >= 5', () => {
+  it("drops below 0.1 when consecutiveFails >= 5", () => {
     const rec = makeRecord({
       okCount: 5,
       failCount: 5,
@@ -57,7 +59,7 @@ describe('scoreSource', () => {
     expect(scoreSource(rec)).toBeLessThan(0.1);
   });
 
-  it('applies moderate penalty for consecutiveFails >= 3 but < 5', () => {
+  it("applies moderate penalty for consecutiveFails >= 3 but < 5", () => {
     const rec = makeRecord({
       okCount: 7,
       failCount: 3,
@@ -67,7 +69,7 @@ describe('scoreSource', () => {
     expect(scoreSource(rec)).toBeLessThan(0.2);
   });
 
-  it('adds recency bonus when last success is within 24 hours', () => {
+  it("adds recency bonus when last success is within 24 hours", () => {
     const rec = makeRecord({
       okCount: 5,
       failCount: 5,
@@ -80,7 +82,7 @@ describe('scoreSource', () => {
     expect(s).toBeLessThan(0.75);
   });
 
-  it('gives no recency bonus when last success is older than 24h', () => {
+  it("gives no recency bonus when last success is older than 24h", () => {
     const rec = makeRecord({
       okCount: 5,
       failCount: 5,
@@ -90,7 +92,7 @@ describe('scoreSource', () => {
     expect(scoreSource(rec)).toBe(0.5);
   });
 
-  it('clamps score to [0, 1]', () => {
+  it("clamps score to [0, 1]", () => {
     const perfect = makeRecord({
       okCount: 1000,
       failCount: 0,
@@ -110,44 +112,52 @@ describe('scoreSource', () => {
 
 // ---- shouldSkipSource ----
 
-describe('shouldSkipSource', () => {
-  it('returns false for null record', () => {
+describe("shouldSkipSource", () => {
+  it("returns false for null record", () => {
     expect(shouldSkipSource(null)).toBe(false);
   });
 
-  it('returns false when consecutiveFails < 5', () => {
+  it("returns false when consecutiveFails < 5", () => {
     expect(shouldSkipSource(makeRecord({ consecutiveFails: 4 }))).toBe(false);
   });
 
-  it('returns true when consecutiveFails >= 5 and never succeeded', () => {
-    expect(shouldSkipSource(makeRecord({ consecutiveFails: 5, lastOkAt: null }))).toBe(true);
+  it("returns true when consecutiveFails >= 5 and never succeeded", () => {
+    expect(
+      shouldSkipSource(makeRecord({ consecutiveFails: 5, lastOkAt: null })),
+    ).toBe(true);
   });
 
-  it('returns false when consecutiveFails >= 5 but recovered within 6h', () => {
-    expect(shouldSkipSource(makeRecord({ consecutiveFails: 5, lastOkAt: makeTime(3) }))).toBe(
-      false,
-    );
+  it("returns false when consecutiveFails >= 5 but recovered within 6h", () => {
+    expect(
+      shouldSkipSource(
+        makeRecord({ consecutiveFails: 5, lastOkAt: makeTime(3) }),
+      ),
+    ).toBe(false);
   });
 
-  it('returns true when consecutiveFails >= 5 and recovery is older than 6h', () => {
-    expect(shouldSkipSource(makeRecord({ consecutiveFails: 5, lastOkAt: makeTime(7) }))).toBe(true);
+  it("returns true when consecutiveFails >= 5 and recovery is older than 6h", () => {
+    expect(
+      shouldSkipSource(
+        makeRecord({ consecutiveFails: 5, lastOkAt: makeTime(7) }),
+      ),
+    ).toBe(true);
   });
 });
 
 // ---- dynamicTimeout ----
 
-describe('dynamicTimeout', () => {
-  it('returns full timeout for score >= 0.7', () => {
+describe("dynamicTimeout", () => {
+  it("returns full timeout for score >= 0.7", () => {
     expect(dynamicTimeout(0.7, 8000)).toBe(8000);
     expect(dynamicTimeout(1.0, 8000)).toBe(8000);
   });
 
-  it('returns half timeout for score < 0.3', () => {
+  it("returns half timeout for score < 0.3", () => {
     expect(dynamicTimeout(0.29, 8000)).toBe(4000);
     expect(dynamicTimeout(0, 8000)).toBe(4000);
   });
 
-  it('interpolates linearly for scores between 0.3 and 0.7', () => {
+  it("interpolates linearly for scores between 0.3 and 0.7", () => {
     // score=0.5 → (0.5-0.3)/0.4 = 0.5 → 0.5+0.5*0.5 = 0.75 → 6000
     expect(dynamicTimeout(0.5, 8000)).toBe(6000);
   });
@@ -155,103 +165,103 @@ describe('dynamicTimeout', () => {
 
 // ---- createInMemoryHealthStore ----
 
-describe('createInMemoryHealthStore', () => {
+describe("createInMemoryHealthStore", () => {
   let store: ISourceHealthStore;
 
   function fresh() {
     store = createInMemoryHealthStore();
   }
 
-  describe('basic CRUD', () => {
-    it('returns null for unknown source', async () => {
+  describe("basic CRUD", () => {
+    it("returns null for unknown source", async () => {
       fresh();
-      expect(await store.get('nope')).toBeNull();
+      expect(await store.get("nope")).toBeNull();
     });
 
-    it('list returns empty array initially', async () => {
+    it("list returns empty array initially", async () => {
       fresh();
       expect(await store.list()).toEqual([]);
     });
 
-    it('clear with no argument wipes all records', async () => {
+    it("clear with no argument wipes all records", async () => {
       fresh();
-      await store.recordOk('a', 100);
-      await store.recordFail('b', 'err');
+      await store.recordOk("a", 100);
+      await store.recordFail("b", "err");
       await store.clear();
       expect(await store.list()).toEqual([]);
     });
 
-    it('clear with a key removes only that source', async () => {
+    it("clear with a key removes only that source", async () => {
       fresh();
-      await store.recordOk('a', 100);
-      await store.recordOk('b', 200);
-      await store.clear('a');
+      await store.recordOk("a", 100);
+      await store.recordOk("b", 200);
+      await store.clear("a");
       const list = await store.list();
       expect(list).toHaveLength(1);
-      expect(list[0]?.sourceKey).toBe('b');
+      expect(list[0]?.sourceKey).toBe("b");
     });
   });
 
-  describe('recordOk', () => {
-    it('increments okCount and resets consecutiveFails', async () => {
+  describe("recordOk", () => {
+    it("increments okCount and resets consecutiveFails", async () => {
       fresh();
-      await store.recordFail('a', 'first fail');
-      await store.recordFail('a', 'second fail');
-      await store.recordOk('a', 50);
-      const rec = await store.get('a');
+      await store.recordFail("a", "first fail");
+      await store.recordFail("a", "second fail");
+      await store.recordOk("a", 50);
+      const rec = await store.get("a");
       expect(rec?.okCount).toBe(1);
       expect(rec?.failCount).toBe(2);
       expect(rec?.consecutiveFails).toBe(0);
       expect(rec?.lastOkAt).toBeGreaterThan(0);
     });
 
-    it('sets initial avgLatencyMs to the first latency value', async () => {
+    it("sets initial avgLatencyMs to the first latency value", async () => {
       fresh();
-      await store.recordOk('a', 300);
-      const rec = await store.get('a');
+      await store.recordOk("a", 300);
+      const rec = await store.get("a");
       expect(rec?.avgLatencyMs).toBe(300);
     });
 
-    it('applies EMA smoothing for subsequent latencies', async () => {
+    it("applies EMA smoothing for subsequent latencies", async () => {
       fresh();
-      await store.recordOk('a', 100); // avg = 100
-      await store.recordOk('a', 200); // avg = 0.8*100 + 0.2*200 = 120
-      const rec = await store.get('a');
+      await store.recordOk("a", 100); // avg = 100
+      await store.recordOk("a", 200); // avg = 0.8*100 + 0.2*200 = 120
+      const rec = await store.get("a");
       expect(rec?.avgLatencyMs).toBeCloseTo(120, 5);
     });
   });
 
-  describe('recordFail', () => {
-    it('increments failCount and consecutiveFails', async () => {
+  describe("recordFail", () => {
+    it("increments failCount and consecutiveFails", async () => {
       fresh();
-      await store.recordFail('a', 'timeout');
-      await store.recordFail('a', 'timeout again');
-      const rec = await store.get('a');
+      await store.recordFail("a", "timeout");
+      await store.recordFail("a", "timeout again");
+      const rec = await store.get("a");
       expect(rec?.failCount).toBe(2);
       expect(rec?.consecutiveFails).toBe(2);
-      expect(rec?.lastError).toBe('timeout again');
+      expect(rec?.lastError).toBe("timeout again");
     });
   });
 
-  describe('happy path round-trip', () => {
-    it('starts neutral, goes low after failures, recovers after successes', async () => {
+  describe("happy path round-trip", () => {
+    it("starts neutral, goes low after failures, recovers after successes", async () => {
       fresh();
 
       // Unknown → neutral
-      expect(scoreSource(await store.get('s'))).toBe(0.5);
+      expect(scoreSource(await store.get("s"))).toBe(0.5);
 
       // 5 consecutive failures → score drops below 0.1, should skip
       for (let i = 0; i < 5; i++) {
-        await store.recordFail('s', `fail ${i}`);
+        await store.recordFail("s", `fail ${i}`);
       }
-      const afterFails = await store.get('s');
+      const afterFails = await store.get("s");
       expect(scoreSource(afterFails)).toBeLessThan(0.1);
       expect(shouldSkipSource(afterFails)).toBe(true);
 
       // 2 consecutive successes → consecutiveFails resets, score rebounds
-      await store.recordOk('s', 80);
-      await store.recordOk('s', 70);
-      const afterOk = await store.get('s');
+      await store.recordOk("s", 80);
+      await store.recordOk("s", 70);
+      const afterOk = await store.get("s");
       expect(afterOk?.consecutiveFails).toBe(0);
       // 2 ok / 7 total ≈ 0.286, plus recency bonus
       expect(scoreSource(afterOk)).toBeGreaterThan(0.4);

@@ -1,8 +1,8 @@
 // Widgets
 export {
-	PosterGridSkeleton,
-	CollectionEmptyState,
-	CollectionErrorState,
+  PosterGridSkeleton,
+  CollectionEmptyState,
+  CollectionErrorState,
 } from "./widgets/collection-skeleton";
 export { DisclaimerDialog } from "./widgets/disclaimer-dialog";
 export { FavoriteButton } from "./widgets/favorite-button";

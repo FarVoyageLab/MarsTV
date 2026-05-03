@@ -17,7 +17,7 @@ export class FetchTimeoutError extends Error {
 
   constructor(url: string, timeoutMs: number) {
     super(`Fetch timeout after ${timeoutMs}ms: ${url}`);
-    this.name = 'FetchTimeoutError';
+    this.name = "FetchTimeoutError";
     this.url = url;
     this.timeoutMs = timeoutMs;
   }
@@ -29,14 +29,17 @@ export class FetchHttpError extends Error {
 
   constructor(url: string, status: number, body: string) {
     super(`HTTP ${status} from ${url}: ${body.slice(0, 200)}`);
-    this.name = 'FetchHttpError';
+    this.name = "FetchHttpError";
     this.url = url;
     this.status = status;
   }
 }
 
 /** 带超时 + 错误分类的 JSON fetch */
-export async function fetchJson<T>(url: string, options: FetchJsonOptions = {}): Promise<T> {
+export async function fetchJson<T>(
+  url: string,
+  options: FetchJsonOptions = {},
+): Promise<T> {
   const { timeoutMs = 8000, headers, signal: externalSignal } = options;
 
   const timeoutController = new AbortController();
@@ -46,14 +49,15 @@ export async function fetchJson<T>(url: string, options: FetchJsonOptions = {}):
   const onExternalAbort = () => timeoutController.abort();
   if (externalSignal) {
     if (externalSignal.aborted) timeoutController.abort();
-    else externalSignal.addEventListener('abort', onExternalAbort);
+    else externalSignal.addEventListener("abort", onExternalAbort);
   }
 
   try {
     const res = await fetch(url, {
       headers: {
-        accept: 'application/json, text/plain, */*',
-        'user-agent': 'Mozilla/5.0 (compatible; MarsTV/0.1; +https://github.com/marstv)',
+        accept: "application/json, text/plain, */*",
+        "user-agent":
+          "Mozilla/5.0 (compatible; MarsTV/0.1; +https://github.com/marstv)",
         ...headers,
       },
       // biome-ignore lint/suspicious/noExplicitAny: DOM/RN AbortSignal type mismatch
@@ -61,18 +65,19 @@ export async function fetchJson<T>(url: string, options: FetchJsonOptions = {}):
     });
 
     if (!res.ok) {
-      const body = await res.text().catch(() => '');
+      const body = await res.text().catch(() => "");
       throw new FetchHttpError(url, res.status, body);
     }
 
     return (await res.json()) as T;
   } catch (err) {
-    if (err instanceof Error && err.name === 'AbortError') {
+    if (err instanceof Error && err.name === "AbortError") {
       throw new FetchTimeoutError(url, timeoutMs);
     }
     throw err;
   } finally {
     clearTimeout(timeoutId);
-    if (externalSignal) externalSignal.removeEventListener('abort', onExternalAbort);
+    if (externalSignal)
+      externalSignal.removeEventListener("abort", onExternalAbort);
   }
 }

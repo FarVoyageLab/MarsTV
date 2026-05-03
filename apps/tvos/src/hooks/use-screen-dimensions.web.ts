@@ -1,5 +1,5 @@
-import { Spacing } from '@/constants/theme';
-import { ScreenDimensionsResult } from './use-screen-dimensions';
+import { Spacing } from "@/constants/theme";
+import { ScreenDimensionsResult } from "./use-screen-dimensions";
 
 export function useScreenDimensions(): ScreenDimensionsResult {
   const width = global.window.innerWidth;
@@ -13,4 +13,3 @@ export function useScreenDimensions(): ScreenDimensionsResult {
     spacing: Spacing,
   };
 }
-

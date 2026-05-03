@@ -1,5 +1,5 @@
-import { Spacing } from '@/constants/theme';
-import { useWindowDimensions } from 'react-native';
+import { Spacing } from "@/constants/theme";
+import { useWindowDimensions } from "react-native";
 
 export type ScreenDimensionsResult = {
   width: number;

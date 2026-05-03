@@ -1,11 +1,11 @@
-import { useAnimatedIconStyles } from '../hooks/use-animated-styles';
-import { Image } from 'expo-image';
-import { useState } from 'react';
-import { Dimensions, Platform, View } from 'react-native';
-import Animated, { Easing, Keyframe } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
+import { useAnimatedIconStyles } from "../hooks/use-animated-styles";
+import { Image } from "expo-image";
+import { useState } from "react";
+import { Dimensions, Platform, View } from "react-native";
+import Animated, { Easing, Keyframe } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
-const INITIAL_SCALE_FACTOR = Dimensions.get('screen').height / 90;
+const INITIAL_SCALE_FACTOR = Dimensions.get("screen").height / 90;
 const DURATION = 600;
 
 const splashKeyframe = new Keyframe({
@@ -35,7 +35,7 @@ export function AnimatedSplashOverlay() {
   return (
     <Animated.View
       entering={splashKeyframe.duration(DURATION).withCallback((finished) => {
-        'worklet';
+        "worklet";
         if (finished) {
           scheduleOnRN(setVisible, false);
         }
@@ -74,10 +74,10 @@ const logoKeyframe = new Keyframe({
 
 const glowKeyframe = new Keyframe({
   0: {
-    transform: [{ rotateZ: '0deg' }],
+    transform: [{ rotateZ: "0deg" }],
   },
   100: {
-    transform: [{ rotateZ: '7200deg' }],
+    transform: [{ rotateZ: "7200deg" }],
   },
 });
 
@@ -91,7 +91,7 @@ export function AnimatedIcon() {
       >
         <Image
           style={styles.glow}
-          source={require('@/assets/images/logo-glow.png')}
+          source={require("@/assets/images/logo-glow.png")}
         />
       </Animated.View>
 
@@ -106,9 +106,9 @@ export function AnimatedIcon() {
         <Image
           style={styles.image}
           source={
-            Platform.OS === 'web' || Platform.isTV
-              ? require('@/assets/images/expotv-logo.png')
-              : require('@/assets/images/expo-logo.png')
+            Platform.OS === "web" || Platform.isTV
+              ? require("@/assets/images/expotv-logo.png")
+              : require("@/assets/images/expo-logo.png")
           }
         />
       </Animated.View>

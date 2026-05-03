@@ -7,10 +7,7 @@ interface FetchOptions {
   signal?: AbortSignal;
 }
 
-async function apiFetch<T>(
-  path: string,
-  opts: FetchOptions = {},
-): Promise<T> {
+async function apiFetch<T>(path: string, opts: FetchOptions = {}): Promise<T> {
   const url = `${API_BASE}${path}`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), opts.timeoutMs ?? 8000);
@@ -40,10 +37,7 @@ export function searchCms(
   return apiFetch(`/search?${q}`);
 }
 
-export function getDetail(
-  source: CmsSource,
-  id: string,
-): Promise<VideoDetail> {
+export function getDetail(source: CmsSource, id: string): Promise<VideoDetail> {
   const q = new URLSearchParams({ source: source.key, id });
   return apiFetch(`/detail?${q}`);
 }
@@ -68,8 +62,12 @@ export async function searchAllCms(
   );
   return results
     .filter(
-      (r): r is PromiseFulfilledResult<{ source: CmsSource; items: VideoItem[] }> =>
-        r.status === "fulfilled",
+      (
+        r,
+      ): r is PromiseFulfilledResult<{
+        source: CmsSource;
+        items: VideoItem[];
+      }> => r.status === "fulfilled",
     )
     .map((r) => r.value)
     .filter((r) => r.items.length > 0);

@@ -16,11 +16,11 @@ import {
   type PlayRecord,
   type SubscriptionRecord,
   makePlayRecordKey,
-} from './types';
+} from "./types";
 
-const NS_HISTORY = 'marstv:history';
-const NS_FAVORITES = 'marstv:favorites';
-const NS_SUBSCRIPTIONS = 'marstv:subscriptions';
+const NS_HISTORY = "marstv:history";
+const NS_FAVORITES = "marstv:favorites";
+const NS_SUBSCRIPTIONS = "marstv:subscriptions";
 
 // Cap stored history to avoid unbounded growth. 500 is plenty for personal use;
 // trimming is FIFO by updatedAt ascending.
@@ -34,7 +34,7 @@ interface MinimalStorage {
 }
 
 function getStore(): MinimalStorage | null {
-  if (typeof globalThis === 'undefined') return null;
+  if (typeof globalThis === "undefined") return null;
   const g = globalThis as { localStorage?: MinimalStorage };
   return g.localStorage ?? null;
 }
@@ -71,7 +71,8 @@ export class LocalStorageBackend implements IStorage {
   async getPlayRecord(source: string, id: string): Promise<PlayRecord | null> {
     const records = readArray<PlayRecord>(NS_HISTORY);
     const match = records.find(
-      (r) => makePlayRecordKey(r.source, r.id) === makePlayRecordKey(source, id),
+      (r) =>
+        makePlayRecordKey(r.source, r.id) === makePlayRecordKey(source, id),
     );
     return match ?? null;
   }
@@ -79,7 +80,9 @@ export class LocalStorageBackend implements IStorage {
   async putPlayRecord(record: PlayRecord): Promise<void> {
     const records = readArray<PlayRecord>(NS_HISTORY);
     const target = makePlayRecordKey(record.source, record.id);
-    const rest = records.filter((r) => makePlayRecordKey(r.source, r.id) !== target);
+    const rest = records.filter(
+      (r) => makePlayRecordKey(r.source, r.id) !== target,
+    );
     rest.push(record);
     // Trim oldest if over cap.
     if (rest.length > MAX_HISTORY) {
@@ -116,7 +119,9 @@ export class LocalStorageBackend implements IStorage {
   async addFavorite(record: FavoriteRecord): Promise<void> {
     const records = readArray<FavoriteRecord>(NS_FAVORITES);
     const target = makePlayRecordKey(record.source, record.id);
-    const rest = records.filter((r) => makePlayRecordKey(r.source, r.id) !== target);
+    const rest = records.filter(
+      (r) => makePlayRecordKey(r.source, r.id) !== target,
+    );
     rest.push(record);
     if (rest.length > MAX_FAVORITES) {
       rest.sort((a, b) => a.updatedAt - b.updatedAt);
@@ -155,16 +160,23 @@ export class LocalStorageBackend implements IStorage {
     return records.some((r) => makePlayRecordKey(r.source, r.id) === target);
   }
 
-  async getSubscription(source: string, id: string): Promise<SubscriptionRecord | null> {
+  async getSubscription(
+    source: string,
+    id: string,
+  ): Promise<SubscriptionRecord | null> {
     const records = readArray<SubscriptionRecord>(NS_SUBSCRIPTIONS);
     const target = makePlayRecordKey(source, id);
-    return records.find((r) => makePlayRecordKey(r.source, r.id) === target) ?? null;
+    return (
+      records.find((r) => makePlayRecordKey(r.source, r.id) === target) ?? null
+    );
   }
 
   async putSubscription(record: SubscriptionRecord): Promise<void> {
     const records = readArray<SubscriptionRecord>(NS_SUBSCRIPTIONS);
     const target = makePlayRecordKey(record.source, record.id);
-    const rest = records.filter((r) => makePlayRecordKey(r.source, r.id) !== target);
+    const rest = records.filter(
+      (r) => makePlayRecordKey(r.source, r.id) !== target,
+    );
     rest.push(record);
     if (rest.length > MAX_SUBSCRIPTIONS) {
       rest.sort((a, b) => a.subscribedAt - b.subscribedAt);
@@ -187,7 +199,9 @@ export class LocalStorageBackend implements IStorage {
   ): Promise<void> {
     if (updates.length === 0) return;
     const records = readArray<SubscriptionRecord>(NS_SUBSCRIPTIONS);
-    const byKey = new Map(updates.map((u) => [makePlayRecordKey(u.source, u.id), u]));
+    const byKey = new Map(
+      updates.map((u) => [makePlayRecordKey(u.source, u.id), u]),
+    );
     const now = Date.now();
     let changed = false;
     const next = records.map((r) => {
@@ -201,7 +215,11 @@ export class LocalStorageBackend implements IStorage {
         return r;
       }
       changed = true;
-      return { ...r, latestEpisodeCount: u.latestEpisodeCount, lastCheckedAt: now };
+      return {
+        ...r,
+        latestEpisodeCount: u.latestEpisodeCount,
+        lastCheckedAt: now,
+      };
     });
     if (changed) writeArray(NS_SUBSCRIPTIONS, next);
   }

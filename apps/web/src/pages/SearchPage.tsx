@@ -9,11 +9,16 @@ const api = createApiClient("");
 export function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") ?? "";
-  const [results, setResults] = useState<{ source: string; sourceName: string; items: VideoItem[] }[]>([]);
+  const [results, setResults] = useState<
+    { source: string; sourceName: string; items: VideoItem[] }[]
+  >([]);
   const [loading, setLoading] = useState(false);
 
   const doSearch = useCallback(async (q: string) => {
-    if (!q.trim()) { setResults([]); return; }
+    if (!q.trim()) {
+      setResults([]);
+      return;
+    }
     setLoading(true);
     try {
       const sources = loadSources();
@@ -48,7 +53,10 @@ export function SearchPage() {
       {loading ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="aspect-[2/3] animate-pulse rounded-lg bg-surface/20" />
+            <div
+              key={i}
+              className="aspect-[2/3] animate-pulse rounded-lg bg-surface/20"
+            />
           ))}
         </div>
       ) : results.length > 0 ? (
@@ -57,11 +65,17 @@ export function SearchPage() {
             <section key={group.source}>
               <h2 className="mb-3 text-sm font-medium text-muted-foreground">
                 来自 {group.sourceName}
-                <span className="ml-2 text-dim-foreground">({group.items.length})</span>
+                <span className="ml-2 text-dim-foreground">
+                  ({group.items.length})
+                </span>
               </h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                 {group.items.map((v) => (
-                  <VideoCard key={`${group.source}:${v.id}`} item={v} hideSourceBadge />
+                  <VideoCard
+                    key={`${group.source}:${v.id}`}
+                    item={v}
+                    hideSourceBadge
+                  />
                 ))}
               </div>
             </section>

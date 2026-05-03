@@ -7,7 +7,15 @@ export interface SignedUrl {
   expiresAt: number;
 }
 
-export function buildProxyUrl(upstreamUrl: string, token: string, expiresAt: number): string {
-  const q = new URLSearchParams({ u: upstreamUrl, e: String(expiresAt), s: token });
+export function buildProxyUrl(
+  upstreamUrl: string,
+  token: string,
+  expiresAt: number,
+): string {
+  const q = new URLSearchParams({
+    u: upstreamUrl,
+    e: String(expiresAt),
+    s: token,
+  });
   return `/api/proxy/m3u8?${q.toString()}`;
 }

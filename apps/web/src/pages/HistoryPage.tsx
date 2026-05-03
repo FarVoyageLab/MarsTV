@@ -13,13 +13,23 @@ export function HistoryPage() {
   }, []);
 
   const handleRemove = useCallback((source: string, id: string) => {
-    fetch(`/api/storage/history?source=${source}&id=${id}`, { method: "DELETE" })
-      .then(() => setRecords((prev) => (prev ?? []).filter((r) => !(r.source === source && r.id === id))))
+    fetch(`/api/storage/history?source=${source}&id=${id}`, {
+      method: "DELETE",
+    })
+      .then(() =>
+        setRecords((prev) =>
+          (prev ?? []).filter((r) => !(r.source === source && r.id === id)),
+        ),
+      )
       .catch(() => {});
   }, []);
 
   if (records === null) {
-    return <div className="flex flex-1 items-center justify-center"><div className="h-8 w-48 animate-pulse rounded bg-surface/40" /></div>;
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <div className="h-8 w-48 animate-pulse rounded bg-surface/40" />
+      </div>
+    );
   }
 
   if (records.length === 0) {

@@ -80,7 +80,10 @@ export interface IStorage {
   // Subscriptions — "追剧" list with new-episode detection.
   listSubscriptions(): Promise<SubscriptionRecord[]>;
   hasSubscription(source: string, id: string): Promise<boolean>;
-  getSubscription(source: string, id: string): Promise<SubscriptionRecord | null>;
+  getSubscription(
+    source: string,
+    id: string,
+  ): Promise<SubscriptionRecord | null>;
   putSubscription(record: SubscriptionRecord): Promise<void>;
   removeSubscription(source: string, id: string): Promise<void>;
   /** Merge fresh episode counts from a bulk check into existing records. Silently

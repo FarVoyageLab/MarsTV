@@ -1,16 +1,16 @@
-import * as Linking from 'expo-linking';
-import type { Href } from 'expo-router';
-import { Link } from 'expo-router';
-import { type ComponentProps } from 'react';
-import { Platform, Pressable } from 'react-native';
+import * as Linking from "expo-linking";
+import type { Href } from "expo-router";
+import { Link } from "expo-router";
+import { type ComponentProps } from "react";
+import { Platform, Pressable } from "react-native";
 
 const openBrowserAsync =
-  Platform.isTV && Platform.OS === 'ios'
+  Platform.isTV && Platform.OS === "ios"
     ? async () => {}
     : // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require('expo-web-browser').openBrowserAsync;
+      require("expo-web-browser").openBrowserAsync;
 
-type Props = Omit<ComponentProps<typeof Link>, 'href'> & {
+type Props = Omit<ComponentProps<typeof Link>, "href"> & {
   href: string;
 };
 
@@ -21,7 +21,7 @@ function ExternalLinkMobile({ href, ...rest }: Props) {
       {...rest}
       href={href as Href<any>}
       onPress={async (event) => {
-        if (Platform.OS !== 'web') {
+        if (Platform.OS !== "web") {
           // Prevent the default behavior of linking to the default browser on native.
           event.preventDefault();
           // Open the link in an in-app browser.

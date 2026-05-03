@@ -1,12 +1,12 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { EventHandlingDemo } from '@/components/tv-event-demo';
-import { TVFocusGuideView } from '@/components/tv-focus-guide';
-import { Collapsible } from '@/components/ui/collapsible';
-import { useScreenDimensions } from '@/hooks/use-screen-dimensions';
-import { useTheme } from '@/hooks/use-theme';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { EventHandlingDemo } from "@/components/tv-event-demo";
+import { TVFocusGuideView } from "@/components/tv-focus-guide";
+import { Collapsible } from "@/components/ui/collapsible";
+import { useScreenDimensions } from "@/hooks/use-screen-dimensions";
+import { useTheme } from "@/hooks/use-theme";
 
 export default function FocusDemoScreen() {
   const styles = useFocusDemoScreenStyles();
@@ -31,10 +31,10 @@ export default function FocusDemoScreen() {
         </ThemedView>
         <ThemedText>
           Demo of events on different platforms (focus events on TV, hover
-          events on web) in <ThemedText type="code">Pressable</ThemedText> and{' '}
+          events on web) in <ThemedText type="code">Pressable</ThemedText> and{" "}
           <ThemedText type="code">Touchable</ThemedText> components.
         </ThemedText>
-        <Collapsible title="How it works" style={{ width: '100%' }}>
+        <Collapsible title="How it works" style={{ width: "100%" }}>
           <ThemedText>
             • On TV platforms, these components have &quot;onFocus()&quot; and
             &quot;onBlur()&quot; props, in addition to the usual
@@ -76,24 +76,24 @@ const useFocusDemoScreenStyles = function () {
   return StyleSheet.create({
     contentContainer: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
       backgroundColor: theme.background,
       paddingHorizontal: spacing.four,
       paddingTop: spacing.three,
       width,
     },
     innerContainer: {
-      justifyContent: 'flex-start',
-      alignItems: 'flex-start',
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
       width: width * 0.8,
       gap: spacing.two,
     },
     titleContainer: {
-      width: '100%',
-      flexDirection: 'row',
+      width: "100%",
+      flexDirection: "row",
       gap: spacing.two,
-      justifyContent: 'center',
+      justifyContent: "center",
       marginBottom: spacing.three,
     },
     sectionsWrapper: {},

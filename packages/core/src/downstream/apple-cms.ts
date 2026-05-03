@@ -5,8 +5,14 @@
 // 返回 JSON 形如 { code, msg, list: [...] },每个 item 含 vod_* 字段
 // ============================================================================
 
-import type { CmsSource, Episode, PlayLine, VideoDetail, VideoItem } from '../types/index';
-import { type FetchJsonOptions, fetchJson } from './fetch-helper';
+import type {
+  CmsSource,
+  Episode,
+  PlayLine,
+  VideoDetail,
+  VideoItem,
+} from "../types/index";
+import { type FetchJsonOptions, fetchJson } from "./fetch-helper";
 
 // ---- 原始 JSON 形状(宽松定义,上游字段可能缺省) ----
 
@@ -36,18 +42,22 @@ interface RawCmsResponse {
 
 // ---- 查询构造 ----
 
-function buildSearchUrl(source: CmsSource, keyword: string, page: number): string {
+function buildSearchUrl(
+  source: CmsSource,
+  keyword: string,
+  page: number,
+): string {
   const url = new URL(source.api);
-  url.searchParams.set('ac', 'videolist');
-  url.searchParams.set('wd', keyword);
-  url.searchParams.set('pg', String(page));
+  url.searchParams.set("ac", "videolist");
+  url.searchParams.set("wd", keyword);
+  url.searchParams.set("pg", String(page));
   return url.toString();
 }
 
 function buildDetailUrl(source: CmsSource, id: string): string {
   const url = new URL(source.api);
-  url.searchParams.set('ac', 'videolist');
-  url.searchParams.set('ids', id);
+  url.searchParams.set("ac", "videolist");
+  url.searchParams.set("ids", id);
   return url.toString();
 }
 
@@ -84,11 +94,11 @@ function toVideoItem(raw: RawCmsItem, sourceKey: string): VideoItem | null {
 export function parsePlayUrl(playFrom: string, playUrl: string): PlayLine[] {
   if (!playUrl) return [];
 
-  const lineNames = (playFrom || '')
-    .split('$$$')
+  const lineNames = (playFrom || "")
+    .split("$$$")
     .map((s) => s.trim())
     .filter(Boolean);
-  const lineSegments = playUrl.split('$$$');
+  const lineSegments = playUrl.split("$$$");
 
   const lines: PlayLine[] = [];
   for (let i = 0; i < lineSegments.length; i++) {
@@ -96,11 +106,11 @@ export function parsePlayUrl(playFrom: string, playUrl: string): PlayLine[] {
     if (!segment) continue;
 
     const episodes: Episode[] = [];
-    const parts = segment.split('#');
+    const parts = segment.split("#");
     for (let j = 0; j < parts.length; j++) {
       const part = parts[j];
       if (!part) continue;
-      const dollarIdx = part.indexOf('$');
+      const dollarIdx = part.indexOf("$");
       if (dollarIdx === -1) {
         episodes.push({ title: `第${j + 1}集`, url: part });
       } else {
@@ -124,7 +134,7 @@ export function parsePlayUrl(playFrom: string, playUrl: string): PlayLine[] {
 function toVideoDetail(raw: RawCmsItem, sourceKey: string): VideoDetail | null {
   const base = toVideoItem(raw, sourceKey);
   if (!base) return null;
-  const lines = parsePlayUrl(raw.vod_play_from ?? '', raw.vod_play_url ?? '');
+  const lines = parsePlayUrl(raw.vod_play_from ?? "", raw.vod_play_url ?? "");
   return { ...base, lines, updateTime: raw.vod_time || undefined };
 }
 
@@ -149,7 +159,9 @@ export async function searchSource(
   const data = await fetchJson<RawCmsResponse>(url, options);
 
   if (data.code !== undefined && data.code !== 1 && data.code !== 200) {
-    throw new Error(`CMS source "${source.key}" returned code=${data.code}: ${data.msg ?? ''}`);
+    throw new Error(
+      `CMS source "${source.key}" returned code=${data.code}: ${data.msg ?? ""}`,
+    );
   }
 
   const items = (data.list ?? [])
@@ -182,7 +194,10 @@ export async function getDetail(
  * 搜索结果通常已包含 vod_play_url;若源返回了完整详情,直接从搜索结果构造 detail
  * 比再发一次 /detail 请求更快。给 /api/search 可选的"顺手带详情"能力。
  */
-export function tryDetailFromSearchItem(raw: RawCmsItem, sourceKey: string): VideoDetail | null {
+export function tryDetailFromSearchItem(
+  raw: RawCmsItem,
+  sourceKey: string,
+): VideoDetail | null {
   if (!raw.vod_play_url) return null;
   return toVideoDetail(raw, sourceKey);
 }
