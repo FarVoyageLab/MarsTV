@@ -21,16 +21,16 @@
 		"@react-navigation/bottom-tabs": "catalog:",
 		"@react-navigation/elements": "catalog:",
 		"@react-navigation/native": "catalog:",
-		"expo": "catalog:react-native-tvos",
+		"expo": "catalog:tvos",
 		"expo-build-properties": "catalog:",
-		"expo-constants": "catalog:react-native-tvos",
+		"expo-constants": "catalog:tvos",
 		"expo-dev-client": "catalog:",
 		"expo-font": "catalog:",
 		"expo-glass-effect": "catalog:",
 		"expo-image": "catalog:",
 		"expo-linear-gradient": "catalog:",
-		"expo-linking": "catalog:react-native-tvos",
-		"expo-router": "catalog:react-native-tvos",
+		"expo-linking": "catalog:tvos",
+		"expo-router": "catalog:tvos",
 		"expo-splash-screen": "catalog:",
 		"expo-status-bar": "catalog:",
 		"expo-symbols": "catalog:",
@@ -38,18 +38,18 @@
 		"expo-web-browser": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"react-native": "catalog:react-native-tvos",
+		"react-native": "catalog:tvos",
 		"react-native-gesture-handler": "catalog:",
-		"react-native-reanimated": "catalog:react-native-tvos",
+		"react-native-reanimated": "catalog:tvos",
 		"react-native-safe-area-context": "catalog:",
 		"react-native-screens": "catalog:",
 		"react-native-web": "catalog:",
-		"react-native-worklets": "catalog:react-native-tvos"
+		"react-native-worklets": "catalog:tvos"
 	},
 	"devDependencies": {
 		"@react-native-tvos/config-tv": "catalog:",
 		"@types/react": "catalog:",
-		"typescript": "catalog:react-native-tvos"
+		"typescript": "catalog:tvos"
 	},
 	"expo": {
 		"install": {
