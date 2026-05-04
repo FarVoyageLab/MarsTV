@@ -1,125 +1,379 @@
-import { createApiClient, searchCms } from "@marstv/api";
-import { loadSources, type VideoItem } from "@marstv/core";
-import { SearchBox, VideoCard } from "@marstv/ui";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { createApiClient, fetchDouban } from "@marstv/api";
+import type { DoubanItem } from "@marstv/api";
+import { type VideoItem } from "@marstv/core";
+import { VideoCard } from "@marstv/ui";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { HeroMars } from "../components/HeroMars";
+import { useSources } from "../lib/sources";
 
-const api = createApiClient("");
+const api = createApiClient(
+	typeof window !== "undefined" ? window.location.origin : "http://localhost",
+);
+
+const QUICK_ACTIONS = [
+	{ num: "01", label: "今日热门", to: "/douban" },
+	{ num: "02", label: "继续观看", to: "/history" },
+	{ num: "03", label: "稍后再看", to: "/favorites" },
+];
+
+type DoubanRowDef = {
+	key: string;
+	title: string;
+	type: "movie" | "tv";
+	tag: string;
+};
+
+const DOUBAN_ROWS: DoubanRowDef[] = [
+	{ key: "tv-hot", title: "热门剧集", type: "tv", tag: "热门" },
+	{ key: "movie-hot", title: "热门电影", type: "movie", tag: "热门" },
+	{ key: "tv-cn", title: "国产剧", type: "tv", tag: "国产剧" },
+	{ key: "movie-top", title: "豆瓣高分电影", type: "movie", tag: "豆瓣高分" },
+];
+
+const PAGE_SIZE = 12;
 
 export function HomePage() {
-  const [sources] = useState(() => loadSources());
-  const [featured, setFeatured] = useState<
-    { source: string; items: VideoItem[] }[]
-  >([]);
-  const navigate = useNavigate();
+	const sources = useSources();
+	const [cmsItems, setCmsItems] = useState<VideoItem[]>([]);
+	const [doubanRows, setDoubanRows] = useState<
+		Record<string, DoubanItem[] | null>
+	>({});
+	const [q, setQ] = useState("");
+	const searchRef = useRef<HTMLInputElement | null>(null);
+	const navigate = useNavigate();
 
-  useEffect(() => {
-    if (sources.length === 0) return;
-    Promise.allSettled(
-      sources.slice(0, 6).map(async (s) => {
-        const { list } = await searchCms(api, s.key, "", 1);
-        return { source: s.key, items: list.slice(0, 8) };
-      }),
-    ).then((results) => {
-      setFeatured(
-        results
-          .filter((r) => r.status === "fulfilled")
-          .map((r) => r.value)
-          .filter((r) => r.items.length > 0),
-      );
-    });
-  }, [sources]);
+	// 全局键盘焦点
+	useEffect(() => {
+		const onKey = (e: KeyboardEvent) => {
+			const inField =
+				e.target instanceof HTMLInputElement ||
+				e.target instanceof HTMLTextAreaElement;
+			if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) {
+				e.preventDefault();
+				searchRef.current?.focus();
+				searchRef.current?.select();
+				return;
+			}
+			if (e.key === "/" && !inField) {
+				e.preventDefault();
+				searchRef.current?.focus();
+			}
+		};
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	}, []);
 
-  return (
-    <div className="relative min-h-screen w-full overflow-hidden flex flex-col">
-      {/* Glowing Orb Background */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-primary/20 blur-[120px] pointer-events-none opacity-60" />
-      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1200px] h-[400px] bg-gradient-to-b from-primary/10 to-transparent blur-[80px] pointer-events-none" />
+	// 拉取四行豆瓣数据（每行独立请求）
+	useEffect(() => {
+		const ctrl = new AbortController();
+		// initialize loading
+		setDoubanRows(
+			Object.fromEntries(DOUBAN_ROWS.map((r) => [r.key, null])) as Record<
+				string,
+				DoubanItem[] | null
+			>,
+		);
 
-      <div className="mx-auto w-full max-w-7xl flex-1 px-6 md:px-10 relative z-10">
-        {/* ═══ Hero — search is the star ═══ */}
-        <section className="flex flex-col items-center pt-32 pb-24 md:pt-48 md:pb-32">
-          <h1 className="mb-8 text-center text-6xl font-black tracking-tighter md:text-8xl lg:text-9xl uppercase text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/50 drop-shadow-2xl">
-            Mars<span className="text-primary">TV</span>
-          </h1>
+		DOUBAN_ROWS.forEach(async (row) => {
+			try {
+				const data = await fetchDouban(
+					api,
+					{
+						type: row.type,
+						tag: row.tag,
+						pageSize: PAGE_SIZE,
+						pageStart: 0,
+						sort: "recommend",
+					},
+					ctrl.signal,
+				);
+				if (ctrl.signal.aborted) return;
+				setDoubanRows((prev) => ({ ...prev, [row.key]: data.items ?? [] }));
+			} catch {
+				// Swallow aborts from StrictMode double-invoke / unmount. Only
+				// surface real failures as the "豆瓣暂不可用" fallback.
+				if (ctrl.signal.aborted) return;
+				setDoubanRows((prev) => ({ ...prev, [row.key]: [] }));
+			}
+		});
 
-          {/* Technical metadata readout */}
-          <div className="mb-12 flex gap-6 font-mono text-[10px] tracking-[0.3em] text-primary/70 uppercase border border-primary/20 bg-primary/5 px-4 py-1.5 backdrop-blur-md">
-            <span>SYSTEM: ONLINE</span>
-            <span className="hidden sm:inline">•</span>
-            <span className="hidden sm:inline">
-              {sources.length > 0
-                ? `SOURCES_ACTIVE: ${sources.length}`
-                : "SOURCES_ACTIVE: 0"}
-            </span>
-            <span>•</span>
-            <span>UPLINK: SECURE</span>
-          </div>
+		return () => ctrl.abort();
+	}, []);
 
-          {/* Search — cinematic, wide */}
-          <div className="w-full max-w-3xl relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
-            <div className="relative">
-              <SearchBox
-                size="lg"
-                onSearch={(q) => navigate(`/search?q=${encodeURIComponent(q)}`)}
-              />
-            </div>
-          </div>
-        </section>
+	// CMS 源聚合流
+	useEffect(() => {
+		if (sources.length === 0) return;
+		Promise.allSettled(
+			sources.slice(0, 6).map(async (s) => {
+				const { searchCms } = await import("@marstv/api");
+				const { list } = await searchCms(api, s.key, "", 1);
+				return list.slice(0, 8);
+			}),
+		).then((results) => {
+			const merged: VideoItem[] = [];
+			const seen = new Set<string>();
+			for (const r of results) {
+				if (r.status !== "fulfilled") continue;
+				for (const v of r.value) {
+					const k = `${v.source ?? ""}:${v.id}`;
+					if (seen.has(k)) continue;
+					seen.add(k);
+					merged.push(v);
+				}
+			}
+			setCmsItems(merged);
+		});
+	}, [sources]);
 
-        {/* ═══ Content ═══ */}
-        <div className="pb-24">
-          {featured.length > 0 ? (
-            featured.map((group, gi) => (
-              <section
-                key={group.source}
-                className="mb-24 relative"
-                style={{ animation: `fade-up 0.5s ease-out ${gi * 0.1}s both` }}
-              >
-                {/* Section header — technical-readout style */}
-                <div className="mb-8 flex flex-col sm:flex-row sm:items-end gap-4 border-b border-white/[0.05] pb-4">
-                  <h2 className="font-mono text-sm font-semibold tracking-[0.15em] text-foreground/80 uppercase">
-                    <span className="text-primary/60 mr-2">SOURCE //</span>
-                    {group.source}
-                  </h2>
-                  <div className="hidden sm:flex flex-1" />
-                  <div className="font-mono text-[10px] tracking-[0.2em] text-dim-foreground/40 uppercase">
-                    // {group.items.length} DATABANKS RETRIEVED
-                  </div>
-                </div>
+	const submitSearch = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!q.trim()) return;
+		navigate(`/search?q=${encodeURIComponent(q.trim())}`);
+	};
 
-                {/* Card grid */}
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                  {group.items.map((v) => (
-                    <VideoCard
-                      key={`${group.source}:${v.id}`}
-                      item={v}
-                      hideSourceBadge
-                    />
-                  ))}
-                </div>
-              </section>
-            ))
-          ) : (
-            <section className="flex flex-col items-center py-32 text-center border border-white/[0.02] bg-white/[0.01] backdrop-blur-sm">
-              <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-primary/20 bg-primary/5 shadow-[0_0_30px_rgba(255,94,0,0.1)] relative">
-                <div className="absolute inset-0 rounded-full animate-ping opacity-20 bg-primary" />
-                <span className="font-mono text-[10px] tracking-[0.3em] text-primary/80 uppercase">
-                  idle
-                </span>
-              </div>
-              <p className="font-mono text-[12px] tracking-[0.2em] text-foreground/60 uppercase mb-4">
-                AWAITING_SOURCE_CONFIGURATION
-              </p>
-              <p className="max-w-md text-sm leading-relaxed text-dim-foreground/50 font-mono">
-                &gt; NO ACTIVE SIGNAL DETECTED. PLEASE CONFIGURE CMS SOURCES IN
-                ENVIRONMENT TO INITIATE DATA TRANSFER.
-              </p>
-            </section>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+	const feedStatus = useMemo(() => {
+		if (sources.length === 0) return null;
+		return `已连接 ${sources.length} 个视频源`;
+	}, [sources.length]);
+
+	return (
+		<div className="relative w-full">
+			{/* ═══ HERO · DEEP SPACE TRANSMISSION DECK ═══ */}
+			<section className="hero-deck mx-auto w-full max-w-[1280px]">
+				{/* Top telemetry strip */}
+				<div className="telemetry-strip hero-reveal" data-delay="1">
+					<span className="live-dot" aria-hidden />
+					<span>LIVE</span>
+					<span className="sep">/</span>
+					<span>2026.05.04</span>
+					<span className="sep">·</span>
+					<span>UTC+08</span>
+					{feedStatus && (
+						<>
+							<span className="sep">·</span>
+							<span>{feedStatus}</span>
+						</>
+					)}
+				</div>
+
+				{/* Mars disc — inline SVG (background-stripped logo), bleeds off right edge */}
+				<div className="mars-stage" aria-hidden>
+					<HeroMars />
+				</div>
+
+				<div className="hero-grid">
+					{/* Left column — content */}
+					<div className="hero-col-left">
+						<div className="hero-chapter hero-reveal" data-delay="2">
+							CH · 00 / 透明传输
+						</div>
+
+						<h1 className="hero-title hero-reveal" data-delay="3">
+							随时<span className="punct">、</span>随地
+							<span className="punct">、</span>
+							<br />
+							随你的<span className="serif">频率</span>
+							<span className="punct">。</span>
+						</h1>
+
+						<p className="hero-subtitle hero-reveal" data-delay="4">
+							聚合任意 CMS 视频源的私人入口
+							<span className="divider" />
+							无追踪
+							<span className="divider" />
+							无广告
+							<span className="divider" />
+							无云端
+						</p>
+
+						{/* Transmission input — slim underline search */}
+						<form
+							onSubmit={submitSearch}
+							className="hero-reveal"
+							data-delay="5"
+						>
+							<label className="transmission">
+								<input
+									ref={searchRef}
+									value={q}
+									onChange={(e) => setQ(e.target.value)}
+									placeholder="输入片名、演员或关键词"
+									type="search"
+									autoFocus
+									autoComplete="off"
+									spellCheck={false}
+									aria-label="搜索影视内容"
+								/>
+								<span className="cursor" aria-hidden />
+								<span className="kbd-hint">
+									{q ? (
+										<span className="cmd-key">↵</span>
+									) : (
+										<>
+											<span className="cmd-key">⌘</span>
+											<span className="cmd-key">K</span>
+										</>
+									)}
+								</span>
+							</label>
+							<p className="hint mt-3">
+								按 <span className="cmd-key">/</span> 聚焦 ·{" "}
+								<span className="cmd-key">↵</span> 发射信号
+							</p>
+						</form>
+
+						{/* Channel list — mono-font quick actions */}
+						<nav
+							aria-label="快捷频道"
+							className="channel-list hero-reveal"
+							data-delay="6"
+						>
+							{QUICK_ACTIONS.map((a) => (
+								<button
+									key={a.to}
+									type="button"
+									onClick={() => navigate(a.to)}
+									className="channel-link"
+								>
+									<span className="ch-num">CH.{a.num}</span>
+									<span>{a.label}</span>
+									<span className="ch-arrow" aria-hidden>
+										→
+									</span>
+								</button>
+							))}
+						</nav>
+					</div>
+
+					{/* Right column — intentionally empty on desktop.
+					    Mars disc lives in absolutely-positioned .mars-stage above. */}
+					<div className="hero-col-right" aria-hidden />
+				</div>
+
+				{/* Bottom telemetry strip */}
+				<div
+					className="telemetry-strip hero-reveal mt-12"
+					data-delay="6"
+					style={{ marginTop: "clamp(48px, 8vh, 96px)" }}
+				>
+					<span>SIGNAL · STABLE</span>
+					<span className="sep">·</span>
+					<span>CH / 01 → 04</span>
+					<span className="sep">·</span>
+					<span>MARSTV / BEACON</span>
+				</div>
+			</section>
+
+			{/* ═══ 豆瓣 4 行 · 每行独立横向滚动 ═══ */}
+			<div className="mx-auto w-full max-w-[1280px] px-6 pb-4 md:px-8">
+				{DOUBAN_ROWS.map((row, i) => (
+					<DoubanRow
+						key={row.key}
+						def={row}
+						items={doubanRows[row.key] ?? null}
+						delay={i * 0.06}
+					/>
+				))}
+			</div>
+
+			{/* ═══ 你的源最新内容（有源时才显示） ═══ */}
+			{cmsItems.length > 0 && (
+				<section className="mx-auto w-full max-w-[1280px] px-6 pt-6 pb-20 md:px-8">
+					<div className="row-heading">
+						<h2>你的源最新内容</h2>
+						<span className="more">{cmsItems.length} 部</span>
+					</div>
+					<div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 md:gap-x-5 lg:grid-cols-6">
+						{cmsItems.map((v, i) => (
+							<div
+								key={`${v.source ?? "src"}:${v.id}`}
+								style={{
+									animation: `fade-up 0.4s ease-out ${Math.min(i * 0.02, 0.4)}s both`,
+								}}
+							>
+								<VideoCard item={v} hideSourceBadge />
+							</div>
+						))}
+					</div>
+				</section>
+			)}
+		</div>
+	);
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// DoubanRow — 单行横向滚动，独立 scrollbar
+// ═════════════════════════════════════════════════════════════════════
+
+function DoubanRow({
+	def,
+	items,
+	delay,
+}: {
+	def: DoubanRowDef;
+	items: DoubanItem[] | null;
+	delay: number;
+}) {
+	const moreHref = `/douban?type=${def.type}&tag=${encodeURIComponent(def.tag)}`;
+
+	return (
+		<section
+			className="mt-10"
+			style={{ animation: `fade-up 0.4s ease-out ${delay}s both` }}
+		>
+			<div className="row-heading">
+				<h2>{def.title}</h2>
+				<Link to={moreHref} className="more">
+					更多 →
+				</Link>
+			</div>
+
+			<div className="row-scroll row-fade">
+				<div className="row-track">
+					{items === null ? (
+						Array.from({ length: PAGE_SIZE }).map((_, i) => (
+							<div key={`sk-${def.key}-${i}`} className="row-skeleton-tile">
+								<div className="ph" />
+								<div className="ph-line" />
+							</div>
+						))
+					) : items.length === 0 ? (
+						<div className="flex h-[222px] w-full items-center rounded-[var(--radius-md)] border border-[var(--border)] px-4 text-[12px] text-[var(--fg-mute)]">
+							豆瓣暂不可用
+						</div>
+					) : (
+						items.map((it) => <DoubanTile key={it.id} item={it} />)
+					)}
+				</div>
+			</div>
+		</section>
+	);
+}
+
+function DoubanTile({ item }: { item: DoubanItem }) {
+	const proxied = item.cover
+		? `/api/image/douban?u=${encodeURIComponent(item.cover)}`
+		: "";
+	const params = new URLSearchParams({ q: item.title });
+	if (item.cover) params.set("dbCover", item.cover);
+	if (item.rate) params.set("dbRate", item.rate);
+	if (item.url) params.set("db", item.url);
+
+	return (
+		<Link to={`/search?${params.toString()}`} className="db-tile">
+			<div className="poster">
+				{proxied ? (
+					<img src={proxied} alt={item.title} loading="lazy" />
+				) : (
+					<div className="flex h-full w-full items-center justify-center text-[11px] text-[var(--fg-faint)]">
+						无封面
+					</div>
+				)}
+				{item.rate ? <span className="rate">{item.rate}</span> : null}
+				{item.isNew ? <span className="new">新</span> : null}
+			</div>
+			<div className="title">{item.title}</div>
+		</Link>
+	);
 }
