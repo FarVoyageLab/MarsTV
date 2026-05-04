@@ -1,43 +1,15 @@
 {
-  "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-      "@marstv/core": ["../../packages/core/src/index.ts"],
-      "@marstv/core/*": ["../../packages/core/src/*"],
-      "@marstv/ui-web": ["../../packages/ui-web/src/index.ts"],
-      "@marstv/ui-web/*": ["../../packages/ui-web/src/*"],
-      "@marstv/config": ["../../packages/config/src/index.ts"],
-      "@marstv/config/tokens": ["../../packages/config/src/tokens.ts"]
+  "extends": "@marstv/typescript-config/react-tsconfig.json",
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.worker.json"
     }
-  },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts",
-    "build/types/**/*.ts",
-    "build/dev/types/**/*.ts"
-  ],
-  "exclude": ["node_modules"]
+  ]
 }

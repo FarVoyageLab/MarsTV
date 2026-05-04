@@ -1,0 +1,13 @@
+{
+	"extends": "@marstv/typescript-config/react-library.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"ignoreDeprecations": "6.0",
+		"paths": {
+			"@marstv/ui/*": ["./src/*"]
+		},
+		"skipLibCheck": true
+	},
+	"include": ["src"],
+	"exclude": ["node_modules", "dist"]
+}

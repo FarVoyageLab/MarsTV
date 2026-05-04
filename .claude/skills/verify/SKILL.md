@@ -1,53 +1,41 @@
 ---
 name: verify
-description: Run the full verification pipeline (typecheck → lint → test) to validate changes before committing or after completing a feature. Use when wrapping up work or before creating a PR.
+description: Run the MarsTV quality gate — type check, lint, and unit tests. Use before declaring an implementation complete, before committing, or when asked to "verify" / "check" changes.
 ---
 
-# verify
+# Verify MarsTV changes
 
-Run the project's quality pipeline in sequence, stopping at the first failure:
+Run the full local quality gate in this order. Stop and report on the first failure instead of pushing through.
 
-1. **Type check** — `pnpm typecheck` (recursive tsc --noEmit)
-2. **Lint** — `pnpm lint` (biome check .)
-3. **Unit tests** — `pnpm test` (recursive vitest run)
+## Steps
 
-If all three pass, run **E2E tests** as the final gate:
-4. **E2E** — `pnpm test:e2e` (Playwright, requires dev server on port 3100)
+1. **Type check the whole monorepo**
 
-## Usage
+   ```bash
+   pnpm check-types
+   ```
 
-Run each step via Bash, in order. If a step fails, stop and report the failure — do not proceed to subsequent steps.
+   This fans out `turbo run check-types` across every package that defines it. If it fails, fix type errors before proceeding.
 
-### Step 1: Type check
+2. **Lint the whole monorepo**
 
-```bash
-pnpm typecheck
-```
+   ```bash
+   pnpm lint
+   ```
 
-### Step 2: Lint
+   Note: most package ESLint configs use `eslint-plugin-only-warn`, so errors here are rare — but Biome issues surfaced during edit should already be auto-formatted by the PostToolUse hook.
 
-```bash
-pnpm lint
-```
+3. **Run unit tests** (only `packages/core` has tests)
 
-### Step 3: Unit tests
+   ```bash
+   pnpm -F @marstv/core test
+   ```
 
-```bash
-pnpm test
-```
+4. **Targeted re-check (optional)** — if the change only touched one app, also run that app's build to catch bundler/SSR issues:
+   - Web SSR: `pnpm -F @marstv/web build`
+   - Desktop: `pnpm -F @marstv/desktop build`
+   - Worker types (after editing `apps/web/wrangler.jsonc`): `pnpm -F @marstv/web cf-typegen`
 
-### Step 4: E2E (if all above pass)
+## Reporting
 
-First ensure the dev server is running on port 3100:
-
-```bash
-pnpm --filter @marstv/web dev --port 3100 &
-```
-
-Then run Playwright:
-
-```bash
-pnpm --filter @marstv/web test:e2e
-```
-
-Report a summary of each step's outcome. If E2E was skipped because earlier steps failed, note what needs fixing first.
+Report the outcome in one short paragraph: what passed, what failed, and (if failed) the first error line with a file:line reference. Do NOT mark the parent task complete if any step failed.

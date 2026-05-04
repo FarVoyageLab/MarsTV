@@ -1,0 +1,51 @@
+{
+	"name": "@marstv/ui",
+	"version": "0.0.0",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts",
+		"./*": "./src/**/*.tsx",
+		"./styles/globals.css": "./src/styles/globals.css",
+		"./styles/tokens.css": "./src/styles/tokens.css",
+		"./tokens": "./src/styles/tokens.ts"
+	},
+	"scripts": {
+		"lint": "eslint . --max-warnings 0",
+		"generate:component": "turbo gen react-component",
+		"check-types": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@marstv/eslint-config": "workspace:*",
+		"@marstv/typescript-config": "workspace:*",
+		"@marstv/core": "workspace:*",
+		"@types/node": "catalog:",
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
+		"artplayer": "catalog:",
+		"eslint": "catalog:",
+		"hls.js": "catalog:",
+		"typescript": "catalog:"
+	},
+	"dependencies": {
+		"@base-ui/react": "catalog:",
+		"@phosphor-icons/react": "catalog:",
+		"class-variance-authority": "catalog:",
+		"clsx": "catalog:",
+		"cmdk": "catalog:",
+		"date-fns": "catalog:",
+		"embla-carousel-react": "catalog:",
+		"input-otp": "catalog:",
+		"next-themes": "catalog:",
+		"react": "catalog:",
+		"react-day-picker": "catalog:",
+		"react-dom": "catalog:",
+		"react-resizable-panels": "catalog:",
+		"recharts": "catalog:",
+		"shadcn": "catalog:",
+		"sonner": "catalog:",
+		"tailwind-merge": "catalog:",
+		"tw-animate-css": "catalog:",
+		"vaul": "catalog:",
+		"@marstv/core": "workspace:*"
+	}
+}

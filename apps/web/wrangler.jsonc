@@ -1,55 +1,52 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "marstv-web",
-  "main": ".open-next/worker.js",
-  "compatibility_date": "2026-05-01",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-  "observability": {
-    "enabled": true
-  },
-  // Self-reference for OpenNext caching
-  // https://opennext.js.org/cloudflare/caching
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "marstv-web",
-      "environment": "production"
-    }
-  ],
-  // R2 incremental cache
-  // https://opennext.js.org/cloudflare/caching
-  "r2_buckets": [
-    {
-      "binding": "NEXT_INC_CACHE_R2_BUCKET",
-      "bucket_name": "marstv-web-opennext-cache"
-    }
-  ],
-  // Image optimization
-  // https://opennext.js.org/cloudflare/howtos/image
-  "images": {
-    "binding": "IMAGES"
-  }
-  // ============================================================
-  //  Runtime variables are managed in the Cloudflare Dashboard.
-  //  This file intentionally has no [vars] section.
-  //
-  //  ALWAYS use --keep-vars when deploying to prevent wrangler
-  //  from deleting Dashboard-configured vars:
-  //    opennextjs-cloudflare deploy --keep-vars
-  //    wrangler deploy --keep-vars
-  //
-  //  The --keep-vars flag flows through the full chain:
-  //    wrangler deploy → opennextjs-cloudflare deploy → wrangler deploy
-  //
-  //  Cloudflare Workers CI deploy command must also include --keep-vars:
-  //    npx wrangler deploy --keep-vars
-  //
-  //  Secrets (via wrangler secret put) are unaffected by deploys.
-  //  Use secrets for: PROXY_SECRET, SITE_PASSWORD
-  //  Use Dashboard vars for: CMS_SOURCES_JSON, ALLOWED_PROXY_HOSTS, etc.
-  // ============================================================
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "marstv-web",
+	"main": "worker/index.ts",
+	"compatibility_date": "2026-05-02",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"not_found_handling": "single-page-application",
+		"run_worker_first": ["/api/*"]
+	},
+	"observability": {
+		"enabled": true
+	},
+	/**
+	 * KV binding — stores the admin-editable CMS source list under `cms:sources`.
+	 *
+	 * The id below is a placeholder so the repo builds for anyone who forks it.
+	 * Local dev uses miniflare's in-memory KV and ignores the id entirely.
+	 *
+	 * For first-time deploy, run:
+	 *   pnpm -F @marstv/web deploy
+	 * It provisions a real namespace on your account, writes the id back here,
+	 * and runs `wrangler deploy`. Commit the updated id to your fork.
+	 *
+	 * Want dev to hit the live KV instead of the local simulator? Add
+	 * `"remote": true` to the binding below after the real id is written.
+	 */
+	"kv_namespaces": [
+		{
+			"binding": "MARSTV_CMS",
+			"id": "0123456789abcdef0123456789abcdef"
+		}
+	]
+
+	/**
+	 * Secrets (set via `wrangler secret put`, not committed):
+	 *   wrangler secret put ADMIN_PASSWORD   # admin login password for /config
+	 *   wrangler secret put SESSION_SECRET   # random 32+ byte string for HMAC cookie signing
+	 *
+	 * After editing this file, regenerate worker types:
+	 *   pnpm -F @marstv/web cf-typegen
+	 */
+	/**
+	 * Service Bindings (communicate between multiple Workers)
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
+	 */
+	// "services": [  {   "binding": "MY_SERVICE",   "service": "my-service"  } ]
 }

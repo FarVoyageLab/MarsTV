@@ -1,0 +1,219 @@
+/* ═══════════════════════════════════════════════════════════════════
+   MARS DESIGN TOKENS — v3
+   Minimal command-palette aesthetic, palette faithful to logo.svg:
+     · deep space #141926 → #080a10 radial
+     · mars orb   #FF7A00 → #E52E71
+     · orbit arcs white / ember glow
+   Reference: Arc / Raycast / Vercel / Linear.
+   Legacy --paper/--ink/glass-* kept for mobile+tvos imports.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+	/* ── Deep-space neutrals (from logo bg-grad) ── */
+	--bg-0: #080a10; /* outermost, app background */
+	--bg-1: #0d1018; /* one step up */
+	--bg-2: #141926; /* raised surface — direct match to logo center */
+	--bg-3: #1c2235; /* interactive hover */
+	--bg-4: #232a40; /* selected / pressed */
+
+	--fg: #f5f6fa;
+	--fg-dim: #a7abbd;
+	--fg-mute: #6b7088;
+	--fg-faint: #3e4358;
+
+	--border: rgba(255, 255, 255, 0.07);
+	--border-strong: rgba(255, 255, 255, 0.14);
+	--border-faint: rgba(255, 255, 255, 0.03);
+
+	/* ── Mars accents (direct from logo mars-grad) ── */
+	--ember: #ff7a00;
+	--ember-soft: rgba(255, 122, 0, 0.14);
+	--ember-ring: rgba(255, 122, 0, 0.35);
+	--magenta: #e52e71;
+	--magenta-soft: rgba(229, 46, 113, 0.14);
+	--mars-gradient: linear-gradient(135deg, #ff7a00 0%, #e52e71 100%);
+
+	/* semantic accent (default = ember) */
+	--accent: var(--ember);
+	--accent-soft: var(--ember-soft);
+	--accent-ring: var(--ember-ring);
+
+	/* ── Legacy Mars aliases ── */
+	--mars-ember: #ff7a00;
+	--mars-ember-bright: #ff7a00;
+	--mars-magenta: #e52e71;
+
+	/* ── Legacy editorial aliases → neutral ── */
+	--paper: #f5f6fa;
+	--paper-dim: #a7abbd;
+	--paper-mute: #6b7088;
+	--ink: #080a10;
+	--ink-raised: #141926;
+	--ink-sunken: #04060a;
+	--rule: rgba(255, 255, 255, 0.07);
+	--rule-strong: rgba(255, 255, 255, 0.14);
+	--rule-dim: rgba(255, 255, 255, 0.03);
+
+	/* ── Void backdrop (RN) ── */
+	--void-deep: #080a10;
+	--void-raised: #141926;
+	--void-surface: #1c2235;
+
+	/* ── Glass tokens (RN only) ── */
+	--glass-white-hi: rgba(255, 255, 255, 0.4);
+	--glass-white-md: rgba(255, 255, 255, 0.14);
+	--glass-white-lo: rgba(255, 255, 255, 0.05);
+	--glass-edge: rgba(255, 255, 255, 0.14);
+	--glass-edge-strong: rgba(255, 255, 255, 0.22);
+
+	/* ── Typography ── */
+	--font-sans:
+		"Inter", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system,
+		"Segoe UI", sans-serif;
+	--font-mono:
+		"JetBrains Mono", "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+	--font-display: var(--font-sans);
+	--font-body: var(--font-sans);
+	--font-serif: var(--font-sans); /* legacy alias */
+	--font-numeric: var(--font-mono);
+
+	/* ── Radii ── */
+	--radius-xs: 6px;
+	--radius-sm: 10px;
+	--radius-md: 14px;
+	--radius-lg: 20px;
+	--radius-xl: 28px;
+	--radius-pill: 999px;
+	--radius-sharp: 0px;
+	--radius-snip: 2px;
+	--radius-soft: 6px;
+
+	/* Glass radii (RN) */
+	--radius-glass-sm: 14px;
+	--radius-glass-md: 22px;
+	--radius-glass-lg: 32px;
+	--radius-glass-pill: 999px;
+
+	/* Shadows */
+	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+	--shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
+	--shadow-lg: 0 24px 60px -16px rgba(0, 0, 0, 0.75);
+	--shadow-accent:
+		0 0 0 1px var(--accent-ring), 0 0 32px -6px rgba(255, 122, 0, 0.45);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   APP BACKDROP — direct translation of logo.svg's radial gradient
+   ═══════════════════════════════════════════════════════════════════ */
+
+.deep-space-bg {
+	background: radial-gradient(
+		ellipse 120% 90% at 50% 50%,
+		#141926 0%,
+		#0d1018 45%,
+		#080a10 100%
+	);
+	background-attachment: fixed;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LEGACY LIQUID GLASS — kept for RN/tvOS consumption only.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.glass-thin {
+	background:
+		linear-gradient(
+			180deg,
+			rgba(255, 255, 255, 0.08) 0%,
+			rgba(255, 255, 255, 0.02) 50%,
+			rgba(255, 255, 255, 0.04) 100%
+		),
+		rgba(20, 25, 38, 0.35);
+	backdrop-filter: blur(10px) saturate(140%);
+	-webkit-backdrop-filter: blur(10px) saturate(140%);
+	border: 1px solid var(--glass-edge);
+}
+
+.glass-regular {
+	background:
+		linear-gradient(
+			180deg,
+			rgba(255, 255, 255, 0.1) 0%,
+			rgba(255, 255, 255, 0.02) 40%,
+			rgba(255, 255, 255, 0.05) 100%
+		),
+		rgba(20, 25, 38, 0.55);
+	backdrop-filter: blur(22px) saturate(170%);
+	-webkit-backdrop-filter: blur(22px) saturate(170%);
+	border: 1px solid var(--glass-edge);
+}
+
+.glass-thick {
+	background:
+		linear-gradient(
+			180deg,
+			rgba(255, 255, 255, 0.14) 0%,
+			rgba(255, 255, 255, 0.02) 35%,
+			rgba(255, 255, 255, 0.06) 100%
+		),
+		rgba(20, 25, 38, 0.7);
+	backdrop-filter: blur(40px) saturate(180%);
+	-webkit-backdrop-filter: blur(40px) saturate(180%);
+	border: 1px solid var(--glass-edge-strong);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOTION
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes cursor-blink {
+	0%,
+	50% {
+		opacity: 1;
+	}
+	51%,
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes accent-pulse {
+	0%,
+	100% {
+		opacity: 0.45;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.9;
+		transform: scale(1.2);
+	}
+}
+
+@keyframes orbit-sweep {
+	from {
+		transform: rotate(-20deg);
+	}
+	to {
+		transform: rotate(340deg);
+	}
+}

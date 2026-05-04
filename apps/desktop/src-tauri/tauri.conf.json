@@ -1,46 +1,35 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
-  "productName": "MarsTV",
-  "version": "0.1.0",
-  "identifier": "com.marstv.desktop",
-  "build": {
-    "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "pnpm --filter @marstv/desktop dev",
-    "beforeBuildCommand": "pnpm --filter @marstv/desktop build",
-    "frontendDist": "../dist"
-  },
-  "app": {
-    "windows": [
-      {
-        "title": "MarsTV",
-        "width": 1280,
-        "height": 720,
-        "resizable": true,
-        "fullscreen": false
-      }
-    ],
-    "security": {
-      "csp": null
-    }
-  },
-  "plugins": {
-    "updater": {
-      "endpoints": ["https://github.com/FarVoyageLab/MarsTV/releases/latest/download/latest.json"],
-      "pubkey": "PLACEHOLDER_REPLACE_WITH_YOUR_SIGNING_KEY",
-      "windows": {
-        "installMode": "passive"
-      }
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ]
-  }
+	"$schema": "https://schema.tauri.app/config/2",
+	"productName": "MarsTV",
+	"version": "0.1.0",
+	"identifier": "app.marstv.desktop",
+	"build": {
+		"beforeDevCommand": "pnpm dev",
+		"devUrl": "http://localhost:1420",
+		"beforeBuildCommand": "pnpm build",
+		"frontendDist": "../dist"
+	},
+	"app": {
+		"windows": [
+			{
+				"title": "MarsTV",
+				"width": 1366,
+				"height": 768
+			}
+		],
+		"security": {
+			"csp": null
+		}
+	},
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		]
+	}
 }

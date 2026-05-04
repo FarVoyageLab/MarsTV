@@ -1,60 +1,63 @@
-// ============================================================================
-// CMS source loader — read from env CMS_SOURCES_JSON at runtime.
-// Format: JSON array of CmsSource. Empty/invalid → empty array (API returns []).
-// Intentionally NO bundled sources to match project compliance stance.
-// ============================================================================
+// Web-side bootstrap for the CMS source list.
+//
+// On startup we fetch /api/sources (served by the Worker from KV) and push
+// the result into @marstv/core via setRuntimeSources — this keeps the
+// existing `loadSources()` / `findSource()` callsites working without any
+// knowledge of where the data came from.
+//
+// Components that need to react to admin edits during the same session use
+// the useSources() hook, which subscribes to source-list updates.
 
-import type { CmsSource } from '@marstv/core';
+import {
+	type CmsSource,
+	loadSources,
+	setRuntimeSources,
+	subscribeSources,
+} from "@marstv/core";
+import { useSyncExternalStore } from "react";
 
-let cached: CmsSource[] | null = null;
+type SourcesResponse = {
+	success: boolean;
+	error?: string;
+	data?: { sources: CmsSource[] };
+};
 
-export function loadSources(): CmsSource[] {
-  if (cached) return cached;
+let initPromise: Promise<void> | null = null;
 
-  const raw = process.env.CMS_SOURCES_JSON;
-  if (!raw) {
-    cached = [];
-    return cached;
-  }
-
-  try {
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
-      console.warn('[MarsTV] CMS_SOURCES_JSON is not an array, ignoring');
-      cached = [];
-      return cached;
-    }
-    cached = parsed.filter(isValidSource);
-    return cached;
-  } catch (err) {
-    console.warn('[MarsTV] Failed to parse CMS_SOURCES_JSON:', err);
-    cached = [];
-    return cached;
-  }
+/**
+ * Fetch sources from /api/sources and hydrate the in-memory cache. Safe to
+ * call multiple times — the promise is memoised, so concurrent callers share
+ * one network roundtrip.
+ */
+export function initSources(): Promise<void> {
+	if (initPromise) return initPromise;
+	initPromise = (async () => {
+		try {
+			const res = await fetch("/api/sources", {
+				headers: { accept: "application/json" },
+			});
+			if (!res.ok) return;
+			const body = (await res.json()) as SourcesResponse;
+			if (body.success && body.data?.sources) {
+				setRuntimeSources(body.data.sources);
+			}
+		} catch {
+			// Network failure leaves the env-based fallback in place.
+		}
+	})();
+	return initPromise;
 }
 
-function isValidSource(value: unknown): value is CmsSource {
-  if (!value || typeof value !== 'object') return false;
-  const s = value as Record<string, unknown>;
-  return typeof s.key === 'string' && typeof s.name === 'string' && typeof s.api === 'string';
+/**
+ * Force a re-fetch — called by ConfigPage after a save so the rest of the
+ * SPA sees the new list without a page reload.
+ */
+export async function refreshSources(): Promise<void> {
+	initPromise = null;
+	await initSources();
 }
 
-export function loadSourcesFromRequest(request: Request): CmsSource[] {
-  try {
-    const header = request.headers.get('X-Cms-Sources');
-    if (header) {
-      const parsed = JSON.parse(header);
-      if (Array.isArray(parsed)) {
-        const clientSources = parsed.filter(isValidSource).slice(0, 20);
-        if (clientSources.length > 0) return clientSources;
-      }
-    }
-  } catch {
-    /* fall through to env sources */
-  }
-  return loadSources();
-}
-
-export function findSource(key: string): CmsSource | undefined {
-  return loadSources().find((s) => s.key === key);
+/** Subscribe to source changes from any React component. */
+export function useSources(): CmsSource[] {
+	return useSyncExternalStore(subscribeSources, loadSources, loadSources);
 }

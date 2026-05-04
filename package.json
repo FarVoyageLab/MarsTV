@@ -1,42 +1,26 @@
 {
-  "name": "marstv",
-  "version": "260502a",
-  "private": true,
-  "description": "A faster, better-looking, cross-platform open-source video aggregation platform.",
-  "license": "MIT",
-  "author": "Fynn Tang <fzpying@gmail.com>",
-  "packageManager": "pnpm@10.0.0",
-  "engines": {
-    "node": ">=20.11.0",
-    "pnpm": ">=10.0.0"
-  },
-  "scripts": {
-    "dev": "pnpm --filter @marstv/web dev",
-    "build": "pnpm -r build",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write .",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
-    "desktop:dev": "pnpm --filter @marstv/desktop dev",
-    "desktop:build": "pnpm --filter @marstv/desktop build",
-    "mobile:start": "pnpm --filter @marstv/mobile start",
-    "mobile:ios": "pnpm --filter @marstv/mobile ios",
-    "mobile:android": "pnpm --filter @marstv/mobile android",
-    "clean": "pnpm -r exec rm -rf node_modules .next dist .turbo",
-    "catalog": "pnpx codemod pnpm/catalog"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "catalog:",
-    "@vitest/coverage-v8": "catalog:",
-    "typescript": "catalog:"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": ["@biomejs/biome", "sharp"],
-    "overrides": {
-      "esbuild": ">=0.25.0",
-      "postcss": ">=8.5.10",
-      "undici": ">=6.24.0"
-    }
-  }
+	"name": "marstv",
+	"private": true,
+	"scripts": {
+		"build": "turbo run build",
+		"dev": "turbo run dev",
+		"lint": "turbo run lint",
+		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
+		"check-types": "turbo run check-types",
+		"catalog": "pnpx codemod pnpm/catalog"
+	},
+	"packageManager": "pnpm@10.33.0",
+	"engines": {
+		"node": ">=22"
+	},
+	"dependencies": {
+		"@biomejs/biome": "catalog:",
+		"@tailwindcss/cli": "catalog:",
+		"@tailwindcss/vite": "catalog:",
+		"prettier": "catalog:",
+		"prettier-plugin-tailwindcss": "catalog:",
+		"tailwindcss": "catalog:",
+		"turbo": "catalog:",
+		"typescript": "catalog:"
+	}
 }

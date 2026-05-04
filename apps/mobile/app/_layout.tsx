@@ -1,48 +1,39 @@
-import { colors } from '@marstv/config';
-import { setSourceStore } from '@marstv/ui-shared';
-import { Stack, useRouter, useSegments } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { isAuthenticated } from '../src/lib/auth';
-import { expoSourceStore } from '../src/lib/source-store';
+import {
+	DarkTheme,
+	DefaultTheme,
+	ThemeProvider,
+} from "@react-navigation/native";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import "react-native-reanimated";
 
-setSourceStore(expoSourceStore);
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { initSources } from "@/lib/sources-store";
 
-function useAuthGate() {
-  const segments = useSegments();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isAuthenticated()) return;
-    if (segments[0] !== 'login') {
-      router.replace('/login');
-    }
-  }, [segments, router]);
-}
+export const unstable_settings = {
+	anchor: "(tabs)",
+};
 
 export default function RootLayout() {
-  useAuthGate();
+	const colorScheme = useColorScheme();
 
-  return (
-    <>
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: colors.surface },
-          headerTintColor: colors.primary,
-          headerTitleStyle: { color: colors.text },
-          contentStyle: { backgroundColor: colors.background },
-        }}
-      >
-        <Stack.Screen name="login" options={{ title: 'Sign In', headerBackVisible: false }} />
-        <Stack.Screen name="index" options={{ title: 'MarsTV' }} />
-        <Stack.Screen name="favorites" options={{ title: 'Favorites' }} />
-        <Stack.Screen name="history" options={{ title: 'History' }} />
-        <Stack.Screen name="subscriptions" options={{ title: 'Subscriptions' }} />
-        <Stack.Screen name="douban" options={{ title: 'Douban' }} />
-        <Stack.Screen name="player" options={{ title: 'Player' }} />
-        <Stack.Screen name="settings" options={{ title: 'Settings' }} />
-      </Stack>
-    </>
-  );
+	// Hydrate the CMS source cache from AsyncStorage on boot so screens that
+	// call useSources() see the persisted list on first render.
+	useEffect(() => {
+		void initSources();
+	}, []);
+
+	return (
+		<ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+			<Stack>
+				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+				<Stack.Screen
+					name="modal"
+					options={{ presentation: "modal", title: "关于" }}
+				/>
+			</Stack>
+			<StatusBar style="auto" />
+		</ThemeProvider>
+	);
 }

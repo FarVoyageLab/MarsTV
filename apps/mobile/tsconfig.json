@@ -1,17 +1,13 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "jsx": "react-jsx",
-    "lib": ["ES2022"],
-    "paths": {
-      "@/*": ["./src/*"],
-      "@marstv/core": ["../../packages/core/src/index.ts"],
-      "@marstv/config": ["../../packages/config/src/index.ts"],
-      "@marstv/ui-shared": ["../../packages/ui-shared/src/index.ts"],
-      "@marstv/ui-native": ["../../packages/ui-native/src/index.ts"]
-    }
-  },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+	"extends": [
+		"expo/tsconfig.base",
+		"@marstv/typescript-config/react-native.json"
+	],
+	"compilerOptions": {
+		"strict": true,
+		"paths": {
+			"@/*": ["./*"]
+		}
+	},
+	"include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }
