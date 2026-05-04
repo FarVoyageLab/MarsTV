@@ -55,7 +55,7 @@ Before adding a dependency, check whether it already exists in a catalog. Use `p
 - **`@marstv/desktop`**: `dev`, `build` (`tsc && vite build`), `tauri <cmd>`
 - **`@marstv/mobile`**: `start` / `android` / `ios` / `web`, `lint` (expo lint)
 - **`@marstv/tvos`**: `start`, `prebuild`, `prebuild:tv` (sets `EXPO_TV=1`), `deploy` (expo export + eas deploy)
-- **`@marstv/web`**: `dev`, `build` (`tsc -b && vite build`), `lint` (eslint), `cf-typegen` (regenerate worker types after editing `wrangler.jsonc`)
+- **`@marstv/web`**: `dev`, `build` (`tsc -b && vite build`), `build:cf` (build + inject KV id, used by CF Workers Builds CI), `lint` (eslint), `deploy` (build + `wrangler deploy`), `cf-typegen` (regenerate worker types after editing `wrangler.jsonc`)
 
 ## Code style
 
@@ -78,7 +78,7 @@ Before adding a dependency, check whether it already exists in a catalog. Use `p
 
 | Target | How |
 |---|---|
-| Web (`@marstv/web`) | Cloudflare Workers — `pnpm -F @marstv/web build` + `wrangler deploy`. Preview URL pattern `marstv-web.<cf-account>.workers.dev` |
+| Web (`@marstv/web`) | Cloudflare Workers — push to main triggers Workers Builds CI (`build:cf`). Local: `pnpm -F @marstv/web deploy`. `--keep-vars` preserves dashboard secrets. Full guide: `apps/web/DEPLOY.md`. |
 | tvOS (`@marstv/tvos`) | EAS — `pnpm -F @marstv/tvos deploy` |
 | Desktop (`@marstv/desktop`) | `pnpm -F @marstv/desktop tauri build` |
 | Mobile (`@marstv/mobile`) | Expo / EAS |
@@ -96,9 +96,10 @@ Before adding a dependency, check whether it already exists in a catalog. Use `p
 2. **TV-specific files** — `apps/tvos/metro.config.js` has commented-out config for TV file extensions. If you introduce `.tv.tsx` variants, uncomment and adjust.
 3. **`EXPO_TV=1`** — Omitting this env var when prebuilding `apps/tvos` produces a non-TV build that looks broken on ATV/Android TV.
 4. **`wrangler.jsonc` edits** — Always re-run `pnpm -F @marstv/web cf-typegen` afterward so `worker-configuration.d.ts` stays in sync.
-5. **Cloudflare Workers secrets** — Historical commits show multiple rounds of fighting `wrangler deploy` overwriting secrets. Use `--keep-vars` when redeploying and prefer dashboard-managed secrets.
+5. **Cloudflare Workers deployment** — `--keep-vars` only protects `vars`/`secrets`, NOT resource bindings (KV, R2, D1). The KV namespace id is injected at build time via `scripts/inject-kv-id.mjs` from a build-time env var. CF dashboard has two identically-named "Variables and Secrets" sections — the one nested under "Build" is for build-time, the top-level one is for runtime. Mixing these up is a common mistake. See `apps/web/DEPLOY.md`.
 6. **Empty `test-results/`** — The `test-results/` directory at repo root is a Playwright artifact left behind; safe to ignore or gitignore.
 7. **Tauri Rust code** lives in `apps/desktop/src-tauri/`. Changes there require a local Rust toolchain.
+8. **`@marstv/ui` lint is strict** — Unlike other packages that use `eslint-plugin-only-warn`, `@marstv/ui` runs eslint with `--max-warnings 0`. Any warning becomes an error in that package.
 
 ## Things an agent should NOT do
 
