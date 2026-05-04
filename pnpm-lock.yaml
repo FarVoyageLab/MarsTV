@@ -24,6 +24,15 @@ catalogs:
     '@expo/vector-icons':
       specifier: ^15.1.1
       version: 15.1.1
+    '@fontsource-variable/inter':
+      specifier: ^5.2.8
+      version: 5.2.8
+    '@fontsource-variable/jetbrains-mono':
+      specifier: ^5.2.8
+      version: 5.2.8
+    '@fontsource/instrument-serif':
+      specifier: ^5.2.8
+      version: 5.2.8
     '@next/eslint-plugin-next':
       specifier: ^16.2.4
       version: 16.2.4
@@ -596,13 +605,13 @@ importers:
   apps/web:
     dependencies:
       '@fontsource-variable/inter':
-        specifier: ^5.2.8
+        specifier: 'catalog:'
         version: 5.2.8
       '@fontsource-variable/jetbrains-mono':
-        specifier: ^5.2.8
+        specifier: 'catalog:'
         version: 5.2.8
       '@fontsource/instrument-serif':
-        specifier: ^5.2.8
+        specifier: 'catalog:'
         version: 5.2.8
       '@marstv/api':
         specifier: workspace:*
@@ -7966,8 +7975,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.4.2:
-    resolution: {integrity: sha512-IynmDyxsEsb9RKzO3J9+4SxXnl2FTFSzNBaKKaMV6tsSk0rw9gYw9gs+JFCq/qk2LCZ78KDwyj+Z289TijSkUw==}
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
 snapshots:
 
@@ -9264,7 +9273,7 @@ snapshots:
       postcss: 8.4.49
       resolve-from: 5.0.0
     optionalDependencies:
-      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
+      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-tvos@0.83.6-0)(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native-tvos@0.83.6-0)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -9356,7 +9365,7 @@ snapshots:
       '@expo/json-file': 10.0.13
       '@react-native/normalize-colors': 0.81.5
       debug: 4.4.3
-      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
+      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-tvos@0.83.6-0)(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native-tvos@0.83.6-0)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
       resolve-from: 5.0.0
       semver: 7.7.4
       xml2js: 0.6.0
@@ -9373,7 +9382,7 @@ snapshots:
       '@expo/json-file': 10.0.13
       '@react-native/normalize-colors': 0.83.6
       debug: 4.4.3
-      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
+      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-tvos@0.83.6-0)(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native-tvos@0.83.6-0)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
       resolve-from: 5.0.0
       semver: 7.7.4
       xml2js: 0.6.0
@@ -11675,7 +11684,7 @@ snapshots:
       resolve-from: 5.0.0
     optionalDependencies:
       '@babel/runtime': 7.29.2
-      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
+      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-tvos@0.83.6-0)(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native-tvos@0.83.6-0)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -12353,7 +12362,7 @@ snapshots:
       eslint: 10.3.0(jiti@2.6.1)
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3))(eslint@10.3.0(jiti@2.6.1)))(eslint@10.3.0(jiti@2.6.1))
       eslint-plugin-expo: 1.0.0(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3))(eslint@10.3.0(jiti@2.6.1)))(eslint@10.3.0(jiti@2.6.1)))(eslint@10.3.0(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3))(eslint-import-resolver-typescript@3.10.1)(eslint@10.3.0(jiti@2.6.1))
       eslint-plugin-react: 7.37.5(eslint@10.3.0(jiti@2.6.1))
       eslint-plugin-react-hooks: 5.2.0(eslint@10.3.0(jiti@2.6.1))
       globals: 16.5.0
@@ -12386,7 +12395,7 @@ snapshots:
       tinyglobby: 0.2.16
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3))(eslint@10.3.0(jiti@2.6.1)))(eslint@10.3.0(jiti@2.6.1)))(eslint@10.3.0(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3))(eslint-import-resolver-typescript@3.10.1)(eslint@10.3.0(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -12410,7 +12419,7 @@ snapshots:
       - supports-color
       - typescript
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3))(eslint@10.3.0(jiti@2.6.1)))(eslint@10.3.0(jiti@2.6.1)))(eslint@10.3.0(jiti@2.6.1)):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.59.1(eslint@10.3.0(jiti@2.6.1))(typescript@5.7.3))(eslint-import-resolver-typescript@3.10.1)(eslint@10.3.0(jiti@2.6.1)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -12451,8 +12460,8 @@ snapshots:
       '@babel/parser': 7.29.3
       eslint: 10.3.0(jiti@2.6.1)
       hermes-parser: 0.25.1
-      zod: 4.4.2
-      zod-validation-error: 4.0.2(zod@4.4.2)
+      zod: 4.4.3
+      zod-validation-error: 4.0.2(zod@4.4.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -12765,7 +12774,7 @@ snapshots:
 
   expo-keep-awake@55.0.7(expo@55.0.19)(react@19.2.5):
     dependencies:
-      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
+      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-tvos@0.83.6-0)(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native-tvos@0.83.6-0)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
       react: 19.2.5
 
   expo-linear-gradient@55.0.13(expo@55.0.19)(react-native-tvos@0.83.6-0)(react@19.2.5):
@@ -12926,7 +12935,7 @@ snapshots:
   expo-splash-screen@31.0.13(expo@55.0.19)(typescript@5.7.3):
     dependencies:
       '@expo/prebuild-config': 54.0.8(expo@55.0.19)(typescript@5.7.3)
-      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5))(react-native@0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(@types/react@19.2.2)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
+      expo: 55.0.19(@babel/core@7.29.0)(@expo/dom-webview@55.0.5)(@expo/metro-runtime@55.0.10)(expo-router@55.0.13)(react-dom@19.2.5(react@19.2.5))(react-native-tvos@0.83.6-0)(react-native-worklets@0.8.1(@babel/core@7.29.0)(@react-native/metro-config@0.85.2(@babel/core@7.29.0))(react-native-tvos@0.83.6-0)(react@19.2.5))(react@19.2.5)(typescript@5.7.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -16398,10 +16407,10 @@ snapshots:
     dependencies:
       zod: 3.25.76
 
-  zod-validation-error@4.0.2(zod@4.4.2):
+  zod-validation-error@4.0.2(zod@4.4.3):
     dependencies:
-      zod: 4.4.2
+      zod: 4.4.3
 
   zod@3.25.76: {}
 
-  zod@4.4.2: {}
+  zod@4.4.3: {}
