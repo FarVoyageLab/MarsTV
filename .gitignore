@@ -39,6 +39,8 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
-
+*.tsbuildinfo
 
 .claude/settings.local.json
+
+.playwright-mcp

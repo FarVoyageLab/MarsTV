@@ -1,23 +1,23 @@
 {
-  "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "base-lyra",
-  "rsc": true,
-  "tsx": true,
-  "tailwind": {
-    "config": "",
-    "css": "src/styles/globals.css",
-    "baseColor": "neutral",
-    "cssVariables": true
-  },
-  "iconLibrary": "phosphor",
-  "aliases": {
-    "components": "@marstv/ui/components",
-    "utils": "@marstv/ui/lib/utils",
-    "hooks": "@marstv/ui/hooks",
-    "lib": "@marstv/ui/lib",
-    "ui": "@marstv/ui/components"
-  },
-  "rtl": false,
-  "menuColor": "default",
-  "menuAccent": "subtle"
+	"$schema": "https://ui.shadcn.com/schema.json",
+	"style": "base-lyra",
+	"rsc": true,
+	"tsx": true,
+	"tailwind": {
+		"config": "",
+		"css": "src/styles/globals.css",
+		"baseColor": "neutral",
+		"cssVariables": true
+	},
+	"iconLibrary": "phosphor",
+	"aliases": {
+		"components": "@marstv/ui/components",
+		"utils": "@marstv/ui/lib/utils",
+		"hooks": "@marstv/ui/hooks",
+		"lib": "@marstv/ui/lib",
+		"ui": "@marstv/ui/components"
+	},
+	"rtl": false,
+	"menuColor": "default",
+	"menuAccent": "subtle"
 }

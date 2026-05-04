@@ -3,19 +3,19 @@
 // The client uses pre-signed URLs from the API.
 
 export interface SignedUrl {
-  token: string;
-  expiresAt: number;
+	token: string;
+	expiresAt: number;
 }
 
 export function buildProxyUrl(
-  upstreamUrl: string,
-  token: string,
-  expiresAt: number,
+	upstreamUrl: string,
+	token: string,
+	expiresAt: number,
 ): string {
-  const q = new URLSearchParams({
-    u: upstreamUrl,
-    e: String(expiresAt),
-    s: token,
-  });
-  return `/api/proxy/m3u8?${q.toString()}`;
+	const q = new URLSearchParams({
+		u: upstreamUrl,
+		e: String(expiresAt),
+		s: token,
+	});
+	return `/api/proxy/m3u8?${q.toString()}`;
 }

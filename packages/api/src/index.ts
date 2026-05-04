@@ -8,13 +8,13 @@
 // ============================================================================
 
 export {
-  ApiClient,
-  ApiError,
-  ApiTimeoutError,
-  createApiClient,
-} from "./client.js";
-export type { ApiClientOptions } from "./client.js";
+	ApiClient,
+	ApiError,
+	ApiTimeoutError,
+	createApiClient,
+} from "@marstv/api/client";
+export type { ApiClientOptions } from "@marstv/api/client";
 
-export type * from "./types.js";
+export type * from "@marstv/api/types";
 
-export * from "./endpoints/index.js";
+export * from "@marstv/api/endpoints/index";

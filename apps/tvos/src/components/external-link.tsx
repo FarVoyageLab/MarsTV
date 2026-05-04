@@ -5,48 +5,48 @@ import { type ComponentProps } from "react";
 import { Platform, Pressable } from "react-native";
 
 const openBrowserAsync =
-  Platform.isTV && Platform.OS === "ios"
-    ? async () => {}
-    : // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("expo-web-browser").openBrowserAsync;
+	Platform.isTV && Platform.OS === "ios"
+		? async () => {}
+		: // eslint-disable-next-line @typescript-eslint/no-require-imports
+			require("expo-web-browser").openBrowserAsync;
 
 type Props = Omit<ComponentProps<typeof Link>, "href"> & {
-  href: string;
+	href: string;
 };
 
 function ExternalLinkMobile({ href, ...rest }: Props) {
-  return (
-    <Link
-      target="_blank"
-      {...rest}
-      href={href as Href<any>}
-      onPress={async (event) => {
-        if (Platform.OS !== "web") {
-          // Prevent the default behavior of linking to the default browser on native.
-          event.preventDefault();
-          // Open the link in an in-app browser.
-          await openBrowserAsync(href);
-        }
-      }}
-    />
-  );
+	return (
+		<Link
+			target="_blank"
+			{...rest}
+			href={href as Href<any>}
+			onPress={async (event) => {
+				if (Platform.OS !== "web") {
+					// Prevent the default behavior of linking to the default browser on native.
+					event.preventDefault();
+					// Open the link in an in-app browser.
+					await openBrowserAsync(href);
+				}
+			}}
+		/>
+	);
 }
 
 function ExternalLinkTV({ href, ...rest }: Props) {
-  return (
-    <Pressable
-      onPress={() =>
-        Linking.openURL(href).catch((reason) => alert(`${reason}`))
-      }
-      style={({ pressed, focused }) => ({
-        opacity: pressed || focused ? 0.6 : 1.0,
-      })}
-    >
-      {rest.children}
-    </Pressable>
-  );
+	return (
+		<Pressable
+			onPress={() =>
+				Linking.openURL(href).catch((reason) => alert(`${reason}`))
+			}
+			style={({ pressed, focused }) => ({
+				opacity: pressed || focused ? 0.6 : 1.0,
+			})}
+		>
+			{rest.children}
+		</Pressable>
+	);
 }
 
 export function ExternalLink(props: Props) {
-  return Platform.isTV ? ExternalLinkTV(props) : ExternalLinkMobile(props);
+	return Platform.isTV ? ExternalLinkTV(props) : ExternalLinkMobile(props);
 }

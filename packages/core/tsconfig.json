@@ -1,19 +1,12 @@
 {
-  "extends": "@marstv/typescript-config/base.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-    "skipLibCheck": true,
-    "moduleResolution": "bundler",
-    "module": "ESNext"
-  },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/**/*.test.tsx",
-    "node_modules",
-    "dist"
-  ]
+	"extends": "@marstv/typescript-config/base.json",
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"skipLibCheck": true,
+		"moduleResolution": "bundler",
+		"module": "ESNext"
+	},
+	"include": ["src"],
+	"exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "node_modules", "dist"]
 }

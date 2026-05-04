@@ -1,8 +1,16 @@
 {
-	"extends": "@marstv/typescript-config/base.json",
-	"compilerOptions": {
-		"outDir": "dist",
-		"rootDir": "src"
-	},
-	"include": ["src"]
+  "extends": "@marstv/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@marstv/api/*": [
+        "src/*"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
 }

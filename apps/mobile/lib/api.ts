@@ -10,8 +10,8 @@
 import { createApiClient } from "@marstv/api";
 
 export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3100";
+	process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3100";
 
 export const api = createApiClient(API_BASE_URL, {
-  timeoutMs: 15000,
+	timeoutMs: 15000,
 });

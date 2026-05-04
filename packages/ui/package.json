@@ -5,7 +5,9 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./*": "./src/**/*.tsx",
-		"./styles/globals.css": "./src/styles/globals.css"
+		"./styles/globals.css": "./src/styles/globals.css",
+		"./styles/tokens.css": "./src/styles/tokens.css",
+		"./tokens": "./src/styles/tokens.ts"
 	},
 	"scripts": {
 		"lint": "eslint . --max-warnings 0",

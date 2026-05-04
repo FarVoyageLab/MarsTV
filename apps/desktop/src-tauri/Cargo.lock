@@ -1967,7 +1967,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "marstvdesktop"
+name = "marstv-desktop"
 version = "0.1.0"
 dependencies = [
  "serde",

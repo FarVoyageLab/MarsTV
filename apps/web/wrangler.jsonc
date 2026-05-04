@@ -3,40 +3,50 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "marstv-web",
-  "main": "worker/index.ts",
-  "compatibility_date": "2026-05-02",
-  "compatibility_flags": ["nodejs_compat"],
-  "assets": {
-    "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
-  },
-  "observability": {
-    "enabled": true
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "marstv-web",
+	"main": "worker/index.ts",
+	"compatibility_date": "2026-05-02",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"not_found_handling": "single-page-application",
+		"run_worker_first": ["/api/*"]
+	},
+	"observability": {
+		"enabled": true
+	},
+	/**
+	 * KV binding — stores the admin-editable CMS source list under `cms:sources`.
+	 *
+	 * The id below is a placeholder so the repo builds for anyone who forks it.
+	 * Local dev uses miniflare's in-memory KV and ignores the id entirely.
+	 *
+	 * For first-time deploy, run:
+	 *   pnpm -F @marstv/web deploy
+	 * It provisions a real namespace on your account, writes the id back here,
+	 * and runs `wrangler deploy`. Commit the updated id to your fork.
+	 *
+	 * Want dev to hit the live KV instead of the local simulator? Add
+	 * `"remote": true` to the binding below after the real id is written.
+	 */
+	"kv_namespaces": [
+		{
+			"binding": "MARSTV_CMS",
+			"id": "0123456789abcdef0123456789abcdef"
+		}
+	]
 
-  /**
-   * Smart Placement
-   * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
-   */
-  // "placement": {  "mode": "smart" }
-  /**
-   * Bindings
-   * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
-   * databases, object storage, AI inference, real-time communication and more.
-   * https://developers.cloudflare.com/workers/runtime-apis/bindings/
-   */
-  /**
-   * Environment Variables
-   * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
-   * Note: Use secrets to store sensitive data.
-   * https://developers.cloudflare.com/workers/configuration/secrets/
-   */
-  // "vars": {  "MY_VARIABLE": "production_value" }
-  /**
-   * Service Bindings (communicate between multiple Workers)
-   * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
-   */
-  // "services": [  {   "binding": "MY_SERVICE",   "service": "my-service"  } ]
+	/**
+	 * Secrets (set via `wrangler secret put`, not committed):
+	 *   wrangler secret put ADMIN_PASSWORD   # admin login password for /config
+	 *   wrangler secret put SESSION_SECRET   # random 32+ byte string for HMAC cookie signing
+	 *
+	 * After editing this file, regenerate worker types:
+	 *   pnpm -F @marstv/web cf-typegen
+	 */
+	/**
+	 * Service Bindings (communicate between multiple Workers)
+	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
+	 */
+	// "services": [  {   "binding": "MY_SERVICE",   "service": "my-service"  } ]
 }

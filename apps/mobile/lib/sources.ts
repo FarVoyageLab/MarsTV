@@ -13,10 +13,10 @@ const RAW = process.env.EXPO_PUBLIC_SOURCE_KEYS ?? "";
 
 /** List of CMS source keys to fetch content from on the home page. */
 export const SOURCE_KEYS: string[] = RAW
-  ? RAW.split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-  : [];
+	? RAW.split(",")
+			.map((s) => s.trim())
+			.filter(Boolean)
+	: [];
 
 /** Whether any sources are configured. */
 export const hasSources = SOURCE_KEYS.length > 0;

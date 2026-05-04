@@ -6,11 +6,11 @@
 // a pre-signed token provided by the server.
 // ============================================================================
 
-import type { ApiClient } from "../client.js";
+import type { ApiClient } from "@marstv/api/client";
 
 export interface SignedUrl {
-  token: string;
-  expiresAt: number;
+	token: string;
+	expiresAt: number;
 }
 
 /**
@@ -22,16 +22,16 @@ export interface SignedUrl {
  * @param expiresAt - Unix-ms timestamp when the signature expires.
  */
 export function buildProxyUrl(
-  upstreamUrl: string,
-  token: string,
-  expiresAt: number,
+	upstreamUrl: string,
+	token: string,
+	expiresAt: number,
 ): string {
-  const q = new URLSearchParams({
-    u: upstreamUrl,
-    e: String(expiresAt),
-    s: token,
-  });
-  return `/api/proxy/m3u8?${q.toString()}`;
+	const q = new URLSearchParams({
+		u: upstreamUrl,
+		e: String(expiresAt),
+		s: token,
+	});
+	return `/api/proxy/m3u8?${q.toString()}`;
 }
 
 /**
@@ -39,19 +39,19 @@ export function buildProxyUrl(
  * Unlike other endpoints this returns a Response, not JSON.
  */
 export function fetchProxyPlaylist(
-  client: ApiClient,
-  upstreamUrl: string,
-  token: string,
-  expiresAt: number,
-  signal?: AbortSignal,
+	client: ApiClient,
+	upstreamUrl: string,
+	token: string,
+	expiresAt: number,
+	signal?: AbortSignal,
 ): Promise<Response> {
-  return client.fetchRaw(
-    "/api/proxy/m3u8",
-    {
-      u: upstreamUrl,
-      e: expiresAt,
-      s: token,
-    },
-    signal,
-  );
+	return client.fetchRaw(
+		"/api/proxy/m3u8",
+		{
+			u: upstreamUrl,
+			e: expiresAt,
+			s: token,
+		},
+		signal,
+	);
 }

@@ -5,69 +5,69 @@ import { Button } from "../components/button";
 import { Input } from "../components/input";
 
 interface Props {
-  /** Called after successful login. */
-  onLoginSuccess: () => void;
+	/** Called after successful login. */
+	onLoginSuccess: () => void;
 }
 
 export function LoginForm({ onLoginSuccess }: Props) {
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+	const [password, setPassword] = useState("");
+	const [error, setError] = useState<string | null>(null);
+	const [pending, setPending] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    setPending(true);
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
-      if (res.ok) {
-        onLoginSuccess();
-        return;
-      }
-      if (res.status === 401) {
-        setError("密码不正确");
-      } else if (res.status === 503) {
-        setError("站点未配置密码,无需登录");
-      } else {
-        setError("登录失败,请重试");
-      }
-    } catch {
-      setError("网络错误,请重试");
-    } finally {
-      setPending(false);
-    }
-  }
+	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
+		setError(null);
+		setPending(true);
+		try {
+			const res = await fetch("/api/login", {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify({ password }),
+			});
+			if (res.ok) {
+				onLoginSuccess();
+				return;
+			}
+			if (res.status === 401) {
+				setError("密码不正确");
+			} else if (res.status === 503) {
+				setError("站点未配置密码,无需登录");
+			} else {
+				setError("登录失败,请重试");
+			}
+		} catch {
+			setError("网络错误,请重试");
+		} finally {
+			setPending(false);
+		}
+	}
 
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-      <div className="flex flex-col gap-2">
-        <label htmlFor="password" className="text-sm text-muted-foreground">
-          访问密码
-        </label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          autoFocus
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          aria-invalid={error !== null}
-          aria-describedby={error ? "login-error" : undefined}
-        />
-      </div>
-      {error && (
-        <p id="login-error" role="alert" className="text-sm text-danger">
-          {error}
-        </p>
-      )}
-      <Button type="submit" disabled={pending || password.length === 0}>
-        {pending ? "验证中…" : "进入 MarsTV"}
-      </Button>
-    </form>
-  );
+	return (
+		<form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+			<div className="flex flex-col gap-2">
+				<label htmlFor="password" className="text-sm text-muted-foreground">
+					访问密码
+				</label>
+				<Input
+					id="password"
+					type="password"
+					autoComplete="current-password"
+					autoFocus
+					required
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					aria-invalid={error !== null}
+					aria-describedby={error ? "login-error" : undefined}
+				/>
+			</div>
+			{error && (
+				<p id="login-error" role="alert" className="text-sm text-danger">
+					{error}
+				</p>
+			)}
+			<Button type="submit" disabled={pending || password.length === 0}>
+				{pending ? "验证中…" : "进入 MarsTV"}
+			</Button>
+		</form>
+	);
 }
