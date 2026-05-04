@@ -1,16 +1,14 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import { RootLayout } from "../../web/src/layouts/RootLayout";
-import { DoubanPage } from "../../web/src/pages/DoubanPage";
-import { FavoritesPage } from "../../web/src/pages/FavoritesPage";
-import { HistoryPage } from "../../web/src/pages/HistoryPage";
-import { HomePage } from "../../web/src/pages/HomePage";
-import { LoginPage } from "../../web/src/pages/LoginPage";
-import { NotFoundPage } from "../../web/src/pages/NotFoundPage";
-import { PlayPage } from "../../web/src/pages/PlayPage";
-import { SearchPage } from "../../web/src/pages/SearchPage";
-import { SubscriptionsPage } from "../../web/src/pages/SubscriptionsPage";
+import { RootLayout } from "@marstv/web/layouts/RootLayout";
+import { DoubanPage } from "@marstv/web/pages/DoubanPage";
+import { FavoritesPage } from "@marstv/web/pages/FavoritesPage";
+import { HistoryPage } from "@marstv/web/pages/HistoryPage";
+import { HomePage } from "@marstv/web/pages/HomePage";
+import { NotFoundPage } from "@marstv/web/pages/NotFoundPage";
+import { PlayPage } from "@marstv/web/pages/PlayPage";
+import { SearchPage } from "@marstv/web/pages/SearchPage";
 import { initSources } from "./lib/sources";
 import { SettingsPage } from "./pages/SettingsPage";
 import "./index.css";
@@ -29,9 +27,7 @@ const router = createBrowserRouter([
 			{ path: "douban", element: <DoubanPage /> },
 			{ path: "favorites", element: <FavoritesPage /> },
 			{ path: "history", element: <HistoryPage /> },
-			{ path: "subscriptions", element: <SubscriptionsPage /> },
 			{ path: "settings", element: <SettingsPage /> },
-			{ path: "login", element: <LoginPage /> },
 			{ path: "*", element: <NotFoundPage /> },
 		],
 	},

@@ -7,6 +7,11 @@ const host = process.env.TAURI_DEV_HOST;
 // https://vite.dev/config/
 export default defineConfig(async () => ({
 	plugins: [tailwindcss(), react()],
+	resolve: {
+		alias: {
+			"@marstv/web": new URL("../web/src", import.meta.url).pathname,
+		},
+	},
 	clearScreen: false,
 	server: {
 		port: 1420,
