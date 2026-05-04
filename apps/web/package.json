@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "tsc -b && vite build",
-		"build:cf": "pnpm run build",
+		"build:cf": "pnpm run build && node scripts/inject-kv-id.mjs",
 		"lint": "eslint .",
 		"preview": "pnpm run build && vite preview",
 		"deploy": "pnpm run build && wrangler deploy",
