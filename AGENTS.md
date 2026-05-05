@@ -25,7 +25,7 @@ Instructions for AI coding agents (Claude Code, Codex, Cursor, Cline, Aider, 等
 - **Package manager:** pnpm `10.33.0` — pinned via `packageManager`. **Never use `npm` or `yarn`.**
 - **Node:** `>= 22`.
 - **Orchestrator:** Turborepo (`turbo.json`). Root scripts fan out via `turbo run <task>`.
-- **No CI, no git hooks.** Quality relies on developer discipline + this file + `/verify` skill.
+- **CI:** GitHub Actions run the quality gate on PRs and pushes to `main`; no git hooks.
 
 ## pnpm catalogs (critical)
 
@@ -68,7 +68,7 @@ Before adding a dependency, check whether it already exists in a catalog. Use `p
 
 - Unit tests: `packages/core` only, vitest, `src/**/*.test.ts`, node env. Run `pnpm -F @marstv/core test`.
 - `@playwright/test` is installed in `@marstv/web` but **no config or specs exist yet** — do not assume a working E2E harness.
-- No CI — every change must be validated locally. Before declaring completion, run the quality gate:
+- CI runs this gate on PRs and pushes to `main`, but every change should still be validated locally before declaring completion:
   ```bash
   pnpm check-types && pnpm lint && pnpm -F @marstv/core test
   ```
@@ -82,6 +82,8 @@ Before adding a dependency, check whether it already exists in a catalog. Use `p
 | tvOS (`@marstv/tvos`) | EAS — `pnpm -F @marstv/tvos deploy` |
 | Desktop (`@marstv/desktop`) | `pnpm -F @marstv/desktop tauri build` |
 | Mobile (`@marstv/mobile`) | Expo / EAS |
+
+Release builds are created from the manual GitHub Actions `Release` workflow. Its tag format is `v{x}.{y}.{z}-{YYYYMMDD}.{HHmm}` using Asia/Shanghai time, for example `v0.1.0-20260505.2130`.
 
 ## Repo etiquette
 
