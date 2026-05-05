@@ -8,13 +8,8 @@
 // Components that need to react to admin edits during the same session use
 // the useSources() hook, which subscribes to source-list updates.
 
-import {
-	type CmsSource,
-	loadSources,
-	setRuntimeSources,
-	subscribeSources,
-} from "@marstv/core";
-import { useSyncExternalStore } from "react";
+import { type CmsSource, setRuntimeSources } from "@marstv/core";
+import { apiPath } from "@marstv/ui/app/lib/runtime";
 
 type SourcesResponse = {
 	success: boolean;
@@ -33,7 +28,7 @@ export function initSources(): Promise<void> {
 	if (initPromise) return initPromise;
 	initPromise = (async () => {
 		try {
-			const res = await fetch("/api/sources", {
+			const res = await fetch(apiPath("/api/sources"), {
 				headers: { accept: "application/json" },
 			});
 			if (!res.ok) return;
@@ -55,9 +50,4 @@ export function initSources(): Promise<void> {
 export async function refreshSources(): Promise<void> {
 	initPromise = null;
 	await initSources();
-}
-
-/** Subscribe to source changes from any React component. */
-export function useSources(): CmsSource[] {
-	return useSyncExternalStore(subscribeSources, loadSources, loadSources);
 }

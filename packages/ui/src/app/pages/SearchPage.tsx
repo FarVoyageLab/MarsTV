@@ -5,13 +5,21 @@ import {
 	type SourceHit,
 	type VideoItem,
 } from "@marstv/core";
-import { SearchBox, VideoCard } from "@marstv/ui";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
+import { SearchBox } from "../../widgets/search-box";
+import { VideoCard } from "../../widgets/video-card";
+import {
+	doubanImagePath,
+	getApiOrigin,
+	getRuntimeCmsSearchHandler,
+	getRuntimeSettingsPath,
+	resolveDoubanImage,
+} from "../lib/runtime";
 import { useSources } from "../lib/sources";
 
 const api = createApiClient(
-	typeof window !== "undefined" ? window.location.origin : "http://localhost",
+	getApiOrigin(),
 	// Worker's internal upstream timeout is 15s. Give the client enough headroom
 	// for workerd overhead before giving up on a request that's still in flight.
 	{ timeoutMs: 25000 },
@@ -35,6 +43,7 @@ export function SearchPage() {
 	const dbCover = searchParams.get("dbCover");
 	const dbRate = searchParams.get("dbRate");
 	const dbUrl = searchParams.get("db");
+	const settingsPath = getRuntimeSettingsPath();
 
 	const sources = useSources();
 	const enabledSources = useMemo(
@@ -60,16 +69,20 @@ export function SearchPage() {
 		const runOne = async (s: CmsSource) => {
 			const started = performance.now();
 			try {
-				const { list } = await searchCms(api, s.key, q, 1);
+				const runtimeSearchCms = getRuntimeCmsSearchHandler();
+				const { list } = runtimeSearchCms
+					? await runtimeSearchCms(s, q, 1)
+					: await searchCms(api, s.key, q, 1);
+				const items = list.map((item) => ({ ...item, source: s.key }));
 				const elapsedMs = Math.round(performance.now() - started);
 				if (runIdRef.current !== myRun) return;
 				setStatuses((prev) => ({
 					...prev,
 					[s.key]: {
 						state: "ok",
-						count: list?.length ?? 0,
+						count: items.length,
 						elapsedMs,
-						items: list ?? [],
+						items,
 					},
 				}));
 			} catch (err) {
@@ -163,7 +176,7 @@ export function SearchPage() {
 						尚未配置任何已启用的视频源
 					</p>
 					<a
-						href="/config"
+						href={settingsPath}
 						className="rounded-full border border-white/10 px-5 py-2 text-sm text-foreground hover:border-primary/60 hover:text-primary"
 					>
 						前往配置
@@ -271,9 +284,27 @@ function DoubanReference({
 	rate: string | null;
 	url: string | null;
 }) {
-	const proxied = cover
-		? `/api/image/douban?u=${encodeURIComponent(cover)}`
-		: null;
+	const [proxied, setProxied] = useState(() =>
+		cover ? doubanImagePath(cover) : null,
+	);
+
+	useEffect(() => {
+		if (!cover) {
+			setProxied(null);
+			return;
+		}
+		const ctrl = new AbortController();
+		setProxied(doubanImagePath(cover));
+		resolveDoubanImage(cover, ctrl.signal)
+			.then((src) => {
+				if (!ctrl.signal.aborted) setProxied(src);
+			})
+			.catch(() => {
+				if (!ctrl.signal.aborted) setProxied(null);
+			});
+		return () => ctrl.abort();
+	}, [cover]);
+
 	return (
 		<div className="mb-8 flex items-stretch gap-4 rounded-xl border border-white/10 bg-white/[0.02] p-4">
 			{proxied ? (

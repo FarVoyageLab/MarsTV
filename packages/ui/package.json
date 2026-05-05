@@ -4,6 +4,11 @@
 	"private": true,
 	"exports": {
 		".": "./src/index.ts",
+		"./app/components/*": "./src/app/components/*.tsx",
+		"./app/layouts/*": "./src/app/layouts/*.tsx",
+		"./app/lib/*": "./src/app/lib/*.ts",
+		"./app/pages/*": "./src/app/pages/*.tsx",
+		"./app/styles/shell.css": "./src/app/styles/shell.css",
 		"./*": "./src/**/*.tsx",
 		"./styles/globals.css": "./src/styles/globals.css",
 		"./styles/tokens.css": "./src/styles/tokens.css",
@@ -17,7 +22,6 @@
 	"devDependencies": {
 		"@marstv/eslint-config": "workspace:*",
 		"@marstv/typescript-config": "workspace:*",
-		"@marstv/core": "workspace:*",
 		"@types/node": "catalog:",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
@@ -28,6 +32,8 @@
 	},
 	"dependencies": {
 		"@base-ui/react": "catalog:",
+		"@marstv/api": "workspace:*",
+		"@marstv/core": "workspace:*",
 		"@phosphor-icons/react": "catalog:",
 		"class-variance-authority": "catalog:",
 		"clsx": "catalog:",
@@ -40,12 +46,12 @@
 		"react-day-picker": "catalog:",
 		"react-dom": "catalog:",
 		"react-resizable-panels": "catalog:",
+		"react-router": "catalog:",
 		"recharts": "catalog:",
 		"shadcn": "catalog:",
 		"sonner": "catalog:",
 		"tailwind-merge": "catalog:",
 		"tw-animate-css": "catalog:",
-		"vaul": "catalog:",
-		"@marstv/core": "workspace:*"
+		"vaul": "catalog:"
 	}
 }

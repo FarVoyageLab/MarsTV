@@ -1,8 +1,10 @@
 "use client";
 
 import type { VideoItem } from "@marstv/core";
+import { useEffect, useState } from "react";
 import type { LinkComponent } from "../lib/link-component";
 import { DefaultLink } from "../lib/link-component";
+import { cmsImagePath, resolveCmsImage } from "../app/lib/runtime";
 import { CardMarkers } from "./card-markers";
 
 interface Props {
@@ -24,9 +26,30 @@ export function VideoCard({
 		`/play/${encodeURIComponent(s)}/${encodeURIComponent(i)}`,
 }: Props) {
 	const href = getPlayUrl(item.source, item.id);
-	const proxiedPoster = item.poster
-		? `${imageProxy}?u=${encodeURIComponent(item.poster)}`
-		: null;
+	const [proxiedPoster, setProxiedPoster] = useState(() =>
+		item.poster ? cmsImagePath(item.poster) : null,
+	);
+
+	useEffect(() => {
+		if (!item.poster) {
+			setProxiedPoster(null);
+			return;
+		}
+		if (imageProxy !== "/api/image/cms") {
+			setProxiedPoster(`${imageProxy}?u=${encodeURIComponent(item.poster)}`);
+			return;
+		}
+		const ctrl = new AbortController();
+		setProxiedPoster(cmsImagePath(item.poster));
+		resolveCmsImage(item.poster, ctrl.signal)
+			.then((src) => {
+				if (!ctrl.signal.aborted) setProxiedPoster(src);
+			})
+			.catch(() => {
+				if (!ctrl.signal.aborted) setProxiedPoster(null);
+			});
+		return () => ctrl.abort();
+	}, [imageProxy, item.poster]);
 
 	return (
 		<LinkComponent href={href} className="glass-card group block">

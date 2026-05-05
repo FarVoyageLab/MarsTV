@@ -6,8 +6,11 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
+		"check-types": "tsc --noEmit",
+		"lint": "pnpm -w exec biome check apps/desktop/src/main.tsx apps/desktop/src/components apps/desktop/src/layouts apps/desktop/src/lib apps/desktop/src/pages apps/desktop/vite.config.ts",
 		"preview": "vite preview",
-		"tauri": "tauri"
+		"tauri": "tauri",
+		"tauri:dev": "tauri dev"
 	},
 	"dependencies": {
 		"@marstv/api": "workspace:*",
