@@ -1,15 +1,19 @@
 import { createApiClient, fetchDouban } from "@marstv/api";
 import type { DoubanItem } from "@marstv/api";
-import { type VideoItem } from "@marstv/core";
-import { VideoCard } from "@marstv/ui";
+import type { VideoItem } from "@marstv/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { VideoCard } from "../../widgets/video-card";
 import { HeroMars } from "../components/HeroMars";
+import {
+	doubanImagePath,
+	getApiOrigin,
+	getRuntimeDoubanHandler,
+	resolveDoubanImage,
+} from "../lib/runtime";
 import { useSources } from "../lib/sources";
 
-const api = createApiClient(
-	typeof window !== "undefined" ? window.location.origin : "http://localhost",
-);
+const api = createApiClient(getApiOrigin());
 
 const QUICK_ACTIONS = [
 	{ num: "01", label: "今日热门", to: "/douban" },
@@ -77,17 +81,17 @@ export function HomePage() {
 
 		DOUBAN_ROWS.forEach(async (row) => {
 			try {
-				const data = await fetchDouban(
-					api,
-					{
-						type: row.type,
-						tag: row.tag,
-						pageSize: PAGE_SIZE,
-						pageStart: 0,
-						sort: "recommend",
-					},
-					ctrl.signal,
-				);
+				const request = {
+					type: row.type,
+					tag: row.tag,
+					pageSize: PAGE_SIZE,
+					pageStart: 0,
+					sort: "recommend" as const,
+				};
+				const runtimeDouban = getRuntimeDoubanHandler();
+				const data = runtimeDouban
+					? await runtimeDouban(request, ctrl.signal)
+					: await fetchDouban(api, request, ctrl.signal);
 				if (ctrl.signal.aborted) return;
 				setDoubanRows((prev) => ({ ...prev, [row.key]: data.items ?? [] }));
 			} catch {
@@ -200,7 +204,6 @@ export function HomePage() {
 									onChange={(e) => setQ(e.target.value)}
 									placeholder="输入片名、演员或关键词"
 									type="search"
-									autoFocus
 									autoComplete="off"
 									spellCheck={false}
 									aria-label="搜索影视内容"
@@ -352,13 +355,30 @@ function DoubanRow({
 }
 
 function DoubanTile({ item }: { item: DoubanItem }) {
-	const proxied = item.cover
-		? `/api/image/douban?u=${encodeURIComponent(item.cover)}`
-		: "";
+	const [proxied, setProxied] = useState(() =>
+		item.cover ? doubanImagePath(item.cover) : "",
+	);
 	const params = new URLSearchParams({ q: item.title });
 	if (item.cover) params.set("dbCover", item.cover);
 	if (item.rate) params.set("dbRate", item.rate);
 	if (item.url) params.set("db", item.url);
+
+	useEffect(() => {
+		if (!item.cover) {
+			setProxied("");
+			return;
+		}
+		const ctrl = new AbortController();
+		setProxied(doubanImagePath(item.cover));
+		resolveDoubanImage(item.cover, ctrl.signal)
+			.then((src) => {
+				if (!ctrl.signal.aborted) setProxied(src);
+			})
+			.catch(() => {
+				if (!ctrl.signal.aborted) setProxied("");
+			});
+		return () => ctrl.abort();
+	}, [item.cover]);
 
 	return (
 		<Link to={`/search?${params.toString()}`} className="db-tile">

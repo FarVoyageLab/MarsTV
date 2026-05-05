@@ -1,17 +1,16 @@
-import { localStorageBackend, type PlayRecord } from "@marstv/core";
-import { invalidateCardMarkers } from "@marstv/ui";
+import { type FavoriteRecord, localStorageBackend } from "@marstv/core";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router";
+import { invalidateCardMarkers } from "../../widgets/card-markers";
+import { apiPath } from "../lib/runtime";
 
-const IMAGE_PROXY = "/api/image/cms";
-
-export function HistoryPage() {
-	const [records, setRecords] = useState<PlayRecord[] | null>(null);
+export function FavoritesPage() {
+	const [records, setRecords] = useState<FavoriteRecord[] | null>(null);
 
 	useEffect(() => {
 		let cancelled = false;
 		localStorageBackend
-			.listPlayRecords()
+			.listFavorites()
 			.then((rs) => {
 				if (!cancelled) setRecords(rs);
 			})
@@ -25,7 +24,7 @@ export function HistoryPage() {
 
 	const handleRemove = useCallback((source: string, id: string) => {
 		localStorageBackend
-			.removePlayRecord(source, id)
+			.removeFavorite(source, id)
 			.then(() => {
 				invalidateCardMarkers();
 				setRecords((prev) =>
@@ -46,10 +45,10 @@ export function HistoryPage() {
 	if (records.length === 0) {
 		return (
 			<div className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-4 py-20 text-center">
-				<div className="mb-6 text-5xl">🕐</div>
-				<h1 className="mb-3 text-2xl font-semibold">观看历史</h1>
+				<div className="mb-6 text-5xl">❤️</div>
+				<h1 className="mb-3 text-2xl font-semibold">我的收藏</h1>
 				<p className="mb-8 max-w-md text-sm leading-6 text-muted-foreground">
-					暂无观看记录,开始观看视频后会自动在这里显示
+					还没有收藏任何视频,在播放页点击「收藏」即可加入这里
 				</p>
 				<Link
 					to="/"
@@ -64,24 +63,17 @@ export function HistoryPage() {
 	return (
 		<div className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 md:px-8">
 			<div className="mb-6 flex items-baseline justify-between gap-4">
-				<h1 className="text-2xl font-semibold">观看历史</h1>
+				<h1 className="text-2xl font-semibold">我的收藏</h1>
 				<span className="text-xs text-dim-foreground">
 					共 {records.length} 部
 				</span>
 			</div>
 			<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
 				{records.map((it) => {
-					const href = `/play/${encodeURIComponent(it.source)}/${encodeURIComponent(it.id)}?line=${it.lineIdx}&ep=${it.epIdx}`;
+					const href = `/play/${encodeURIComponent(it.source)}/${encodeURIComponent(it.id)}`;
 					const proxiedPoster = it.poster
-						? `${IMAGE_PROXY}?u=${encodeURIComponent(it.poster)}`
+						? apiPath(`/api/image/cms?u=${encodeURIComponent(it.poster)}`)
 						: null;
-					const pct =
-						it.durationSec > 0
-							? Math.min(
-									100,
-									Math.floor((it.positionSec / it.durationSec) * 100),
-								)
-							: 0;
 					return (
 						<div
 							key={`${it.source}:${it.id}`}
@@ -107,18 +99,6 @@ export function HistoryPage() {
 											{it.sourceName}
 										</span>
 									) : null}
-									<span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1.5 pt-4 pb-1 text-[10px] text-foreground/90">
-										{it.lineName ?? `线路 ${it.lineIdx + 1}`} · 第{" "}
-										{it.epIdx + 1} 集
-									</span>
-									{pct > 0 ? (
-										<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-black/40">
-											<div
-												className="h-full bg-primary"
-												style={{ width: `${pct}%` }}
-											/>
-										</div>
-									) : null}
 								</div>
 								<div className="px-2 py-1.5">
 									<p className="line-clamp-2 text-xs text-foreground group-hover:text-primary">
@@ -129,7 +109,7 @@ export function HistoryPage() {
 							<button
 								type="button"
 								onClick={() => handleRemove(it.source, it.id)}
-								aria-label="移除历史"
+								aria-label="取消收藏"
 								className="absolute right-1.5 top-1.5 rounded-full bg-background/70 px-1.5 py-0.5 text-[10px] text-muted-foreground opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
 							>
 								×

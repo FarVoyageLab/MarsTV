@@ -1,13 +1,18 @@
 import { createApiClient, getDetail } from "@marstv/api";
 import type { VideoDetail } from "@marstv/core";
-import { EpisodeGrid, FavoriteButton, PlayerEmbed } from "@marstv/ui";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { EpisodeGrid } from "../../widgets/episode-grid";
+import { FavoriteButton } from "../../widgets/favorite-button";
+import { PlayerEmbed } from "../../widgets/player-embed";
+import {
+	getApiOrigin,
+	getRuntimeCmsDetailHandler,
+	resolvePlaybackUrl,
+} from "../lib/runtime";
 import { useSources } from "../lib/sources";
 
-const api = createApiClient(
-	typeof window !== "undefined" ? window.location.origin : "http://localhost",
-);
+const api = createApiClient(getApiOrigin());
 
 function asInt(v: string | null, fallback = 0): number {
 	if (!v) return fallback;
@@ -34,9 +39,13 @@ export function PlayPage() {
 
 	useEffect(() => {
 		if (!source || !id) return;
+		const runtimeGetDetail = getRuntimeCmsDetailHandler();
 		setLoading(true);
 		setError(null);
-		getDetail(api, source.key, id)
+		(runtimeGetDetail
+			? runtimeGetDetail(source, id)
+			: getDetail(api, source.key, id)
+		)
 			.then(setDetail)
 			.catch((err: Error) => setError(err.message))
 			.finally(() => setLoading(false));
@@ -119,12 +128,32 @@ export function PlayPage() {
 	}
 
 	const lineIdx = Math.min(asInt(searchParams.get("line")), lines.length - 1);
-	const line = lines[lineIdx]!;
+	const line = lines[lineIdx];
+	if (!line || line.episodes.length === 0) {
+		return (
+			<div className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
+				<h1 className="mb-2 text-xl font-semibold">{detail.title}</h1>
+				<p className="text-sm text-muted-foreground">
+					è¯¥çº¿è·¯æš‚æ— å¯ç”¨å‰§é›†
+				</p>
+			</div>
+		);
+	}
 	const epIdx = Math.min(
 		asInt(searchParams.get("ep")),
 		line.episodes.length - 1,
 	);
-	const episode = line.episodes[epIdx]!;
+	const episode = line.episodes[epIdx];
+	if (!episode) {
+		return (
+			<div className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
+				<h1 className="mb-2 text-xl font-semibold">{detail.title}</h1>
+				<p className="text-sm text-muted-foreground">
+					è¯¥é›†æš‚æ— å¯ç”¨æ’­æ”¾åœ°å€
+				</p>
+			</div>
+		);
+	}
 
 	const sourceName = source.name ?? detail.source;
 	const nextEpIdx = epIdx + 1 < line.episodes.length ? epIdx + 1 : null;
@@ -132,11 +161,11 @@ export function PlayPage() {
 
 	// Route playback through the worker proxy so HLS.js can fetch the manifest
 	// and segments with CORS headers — most upstream CMS CDNs don't send any.
-	const playbackUrl = `/api/proxy/m3u8?u=${encodeURIComponent(episode.url)}`;
+	const playbackUrl = resolvePlaybackUrl(episode.url);
 	const nextEpisode =
 		nextEpIdx !== null ? (line.episodes[nextEpIdx] ?? null) : null;
 	const nextPlaybackUrl = nextEpisode
-		? `/api/proxy/m3u8?u=${encodeURIComponent(nextEpisode.url)}`
+		? resolvePlaybackUrl(nextEpisode.url)
 		: undefined;
 
 	const nextHref =

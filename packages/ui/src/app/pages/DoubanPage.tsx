@@ -2,10 +2,14 @@ import type { DoubanItem } from "@marstv/api";
 import { createApiClient, fetchDouban } from "@marstv/api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
+import {
+	doubanImagePath,
+	getApiOrigin,
+	getRuntimeDoubanHandler,
+	resolveDoubanImage,
+} from "../lib/runtime";
 
-const api = createApiClient(
-	typeof window !== "undefined" ? window.location.origin : "http://localhost",
-);
+const api = createApiClient(getApiOrigin());
 
 type DoubanType = "movie" | "tv";
 type SortKey = "recommend" | "time" | "rank";
@@ -103,11 +107,13 @@ export function DoubanPage() {
 		setError(null);
 		setLoading(true);
 
-		fetchDouban(
-			api,
-			{ type, tag, sort, pageSize: PAGE_SIZE, pageStart: 0 },
-			ctrl.signal,
-		)
+		const request = { type, tag, sort, pageSize: PAGE_SIZE, pageStart: 0 };
+		const runtimeDouban = getRuntimeDoubanHandler();
+		const fetchFirstPage = runtimeDouban
+			? runtimeDouban(request, ctrl.signal)
+			: fetchDouban(api, request, ctrl.signal);
+
+		fetchFirstPage
 			.then((data) => {
 				if (ctrl.signal.aborted) return;
 				const list = data.items ?? [];
@@ -130,13 +136,17 @@ export function DoubanPage() {
 		setLoadingMore(true);
 		const nextStart = pageStartRef.current + PAGE_SIZE;
 		try {
-			const data = await fetchDouban(api, {
+			const request = {
 				type,
 				tag,
 				sort,
 				pageSize: PAGE_SIZE,
 				pageStart: nextStart,
-			});
+			};
+			const runtimeDouban = getRuntimeDoubanHandler();
+			const data = runtimeDouban
+				? await runtimeDouban(request)
+				: await fetchDouban(api, request);
 			const list = data.items ?? [];
 			setItems((prev) => [...prev, ...list]);
 			pageStartRef.current = nextStart;
@@ -340,13 +350,30 @@ function Grid({ children }: { children: React.ReactNode }) {
 }
 
 function DoubanTile({ item }: { item: DoubanItem }) {
-	const proxied = item.cover
-		? `/api/image/douban?u=${encodeURIComponent(item.cover)}`
-		: "";
+	const [proxied, setProxied] = useState(() =>
+		item.cover ? doubanImagePath(item.cover) : "",
+	);
 	const params = new URLSearchParams({ q: item.title });
 	if (item.cover) params.set("dbCover", item.cover);
 	if (item.rate) params.set("dbRate", item.rate);
 	if (item.url) params.set("db", item.url);
+
+	useEffect(() => {
+		if (!item.cover) {
+			setProxied("");
+			return;
+		}
+		const ctrl = new AbortController();
+		setProxied(doubanImagePath(item.cover));
+		resolveDoubanImage(item.cover, ctrl.signal)
+			.then((src) => {
+				if (!ctrl.signal.aborted) setProxied(src);
+			})
+			.catch(() => {
+				if (!ctrl.signal.aborted) setProxied("");
+			});
+		return () => ctrl.abort();
+	}, [item.cover]);
 
 	return (
 		<Link to={`/search?${params.toString()}`} className="db-tile group">

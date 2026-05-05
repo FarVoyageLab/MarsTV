@@ -4,9 +4,9 @@
 	"version": "0.1.0",
 	"identifier": "app.marstv.desktop",
 	"build": {
-		"beforeDevCommand": "pnpm dev",
+		"beforeDevCommand": "pnpm -F @marstv/desktop dev",
 		"devUrl": "http://localhost:1420",
-		"beforeBuildCommand": "pnpm build",
+		"beforeBuildCommand": "pnpm -F @marstv/desktop build",
 		"frontendDist": "../dist"
 	},
 	"app": {
@@ -14,7 +14,10 @@
 			{
 				"title": "MarsTV",
 				"width": 1366,
-				"height": 768
+				"height": 768,
+				"minWidth": 1024,
+				"minHeight": 640,
+				"decorations": false
 			}
 		],
 		"security": {

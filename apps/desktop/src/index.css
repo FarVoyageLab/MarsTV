@@ -1,164 +1,151 @@
-/* ── Shared UI base ── */
-@import "@marstv/ui/styles/globals.css";
+/* Tauri desktop keeps the shared Web visual language, with a few shell-level
+   constraints so the page sits comfortably inside a native window. */
+@source "./**/*.tsx";
 
-/* ═══════════════════════════════════════════════════════════════════
-   CINEMATIC ARCHIVE — Design System
-   Premium editorial dark theme with mars orange accent.
-   Grayscale→color cards, blurred cinematic backdrops, film-still framing.
-   ═══════════════════════════════════════════════════════════════════ */
-
-@theme inline {
-  --color-primary: #FF5E00;
-  --color-primary-intense: #FF7B33;
-  --color-primary-muted: rgba(255, 94, 0, 0.12);
-  --color-surface: rgba(255, 255, 255, 0.03);
-  --color-surface-raised: rgba(255, 255, 255, 0.06);
-  --color-dim-foreground: #6B6B7B;
-  --color-border-dim: rgba(255, 255, 255, 0.04);
-  --color-border: rgba(255, 255, 255, 0.07);
-  --color-border-strong: rgba(255, 255, 255, 0.12);
-  --color-danger: #FF4545;
-  --font-sans: "Space Grotesk", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-}
-
-.dark {
-  --primary: #FF5E00;
-  --primary-foreground: #ffffff;
-  --ring: rgba(255, 94, 0, 0.4);
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   KEYFRAMES
-   ═══════════════════════════════════════════════════════════════════ */
-
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes bloom {
-  from { filter: grayscale(0.3) brightness(0.85); }
-  to   { filter: grayscale(0) brightness(1.05); }
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   BACKGROUND — layered cinematic atmosphere
-   ═══════════════════════════════════════════════════════════════════ */
-
-.marstv-space-bg {
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,94,0,0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 85% 40%, rgba(255,120,60,0.03) 0%, transparent 50%),
-    #08080D;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   HEADER — clean, elevated
-   ═══════════════════════════════════════════════════════════════════ */
-
-.glass-header {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  background: rgba(8, 8, 13, 0.8);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   FOOTER
-   ═══════════════════════════════════════════════════════════════════ */
-
-.glass-footer {
-  background: transparent;
-  border-top: 1px solid rgba(255, 255, 255, 0.03);
-  opacity: 0.4;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   CARDS — grayscale→color bloom on hover, film-still frame
-   ═══════════════════════════════════════════════════════════════════ */
-
-.glass-card {
-  position: relative;
-  background: #0e0e15;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
-  overflow: hidden;
-  transition:
-    transform 0.35s cubic-bezier(0.25, 0.5, 0.25, 1.25),
-    border-color 0.35s ease,
-    box-shadow 0.35s ease;
-}
-
-.glass-card img {
-  filter: grayscale(0.2) brightness(0.9);
-  transition: filter 0.5s ease;
-}
-
-.glass-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(255, 94, 0, 0.25);
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 94, 0, 0.1);
-  z-index: 2;
-}
-
-.glass-card:hover img {
-  filter: grayscale(0) brightness(1.05);
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   BUTTONS
-   ═══════════════════════════════════════════════════════════════════ */
-
-.glass-button {
-  background: rgba(255, 94, 0, 0.1);
-  border: 1px solid rgba(255, 94, 0, 0.15);
-  color: #FF8A4C;
-  font-family: "Space Grotesk", system-ui, sans-serif;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  transition: all 0.2s ease;
-}
-
-.glass-button:hover {
-  background: rgba(255, 94, 0, 0.18);
-  border-color: rgba(255, 94, 0, 0.3);
-  box-shadow: 0 0 28px rgba(255, 94, 0, 0.1);
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   GLOBAL TYPOGRAPHY
-   ═══════════════════════════════════════════════════════════════════ */
-
-html {
-  font-family: "Space Grotesk", system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
+html,
+body,
+#root {
+	min-width: 0;
+	min-height: 100vh;
 }
 
 body {
-  background: #08080D;
-  color: #e4e4ee;
+	overflow-x: hidden;
 }
 
-::selection {
-  background: rgba(255, 94, 0, 0.2);
-  color: #fff;
+.desktop-titlebar {
+	position: fixed;
+	top: 0;
+	right: 0;
+	left: 0;
+	z-index: 80;
+	display: flex;
+	height: 34px;
+	align-items: center;
+	border-bottom: 1px solid var(--border);
+	background: rgba(8, 10, 16, 0.86);
+	backdrop-filter: blur(18px);
+	user-select: none;
 }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.04); border-radius: 2px; }
+.desktop-titlebar__brand {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 112px;
+	padding-left: 14px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--fg-dim);
+}
 
-/* ── Search input overrides ── */
-input[type="search"]::-webkit-search-decoration,
-input[type="search"]::-webkit-search-cancel-button,
-input[type="search"]::-webkit-search-results-button,
-input[type="search"]::-webkit-search-results-decoration {
-  display: none;
+.desktop-titlebar__mark {
+	width: 9px;
+	height: 9px;
+	border-radius: 999px;
+	background: var(--ember);
+	box-shadow: 0 0 16px rgba(255, 122, 0, 0.65);
+}
+
+.desktop-titlebar__nav {
+	display: flex;
+	height: 100%;
+	align-items: center;
+	gap: 2px;
+}
+
+.desktop-titlebar__nav a {
+	height: 100%;
+	text-decoration: none;
+}
+
+.desktop-titlebar__nav-item {
+	display: flex;
+	height: 100%;
+	align-items: center;
+	padding: 0 12px;
+	border-inline: 1px solid transparent;
+	color: var(--fg-mute);
+	font-size: 12px;
+	transition:
+		background-color 120ms ease,
+		border-color 120ms ease,
+		color 120ms ease;
+}
+
+.desktop-titlebar__nav-item:hover,
+.desktop-titlebar__nav-item[data-active="true"] {
+	border-color: rgba(255, 255, 255, 0.06);
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--fg);
+}
+
+.desktop-titlebar__nav-item[data-active="true"] {
+	color: var(--ember);
+}
+
+.desktop-titlebar__drag-zone {
+	min-width: 24px;
+	flex: 1;
+	align-self: stretch;
+	border: 0;
+	background: transparent;
+	cursor: default;
+}
+
+.desktop-titlebar__controls {
+	display: flex;
+	margin-left: auto;
+	align-self: stretch;
+}
+
+.desktop-titlebar__controls button,
+.desktop-titlebar__settings-icon {
+	display: grid;
+	width: 42px;
+	height: 100%;
+	place-items: center;
+	border: 0;
+	background: transparent;
+	color: var(--fg-dim);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 13px;
+	line-height: 1;
+	transition:
+		background-color 120ms ease,
+		color 120ms ease;
+}
+
+.desktop-titlebar__settings {
+	text-decoration: none;
+}
+
+.desktop-titlebar__settings-icon {
+	font-family: inherit;
+	font-size: 14px;
+}
+
+.desktop-titlebar__controls button:hover,
+.desktop-titlebar__settings-icon:hover,
+.desktop-titlebar__settings-icon[data-active="true"] {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--fg);
+}
+
+.desktop-titlebar__controls .desktop-titlebar__close:hover {
+	background: #d83b3b;
+	color: white;
+}
+
+.desktop-window-content {
+	min-height: 100vh;
+	padding-top: 34px;
+}
+
+.desktop-window-content header.sticky {
+	display: none;
+}
+
+.desktop-window-content main {
+	min-height: calc(100vh - 34px);
 }

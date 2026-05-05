@@ -1,32 +1,84 @@
 import type { CmsSource } from "@marstv/core";
-import { useEffect, useState } from "react";
+import {
+	getStoredApiOrigin,
+	setStoredApiOrigin,
+} from "@marstv/ui/app/lib/runtime";
+import { useEffect, useRef, useState } from "react";
 import { saveSources, useSources } from "../lib/sources";
 
-// Local form-row type — mirrors the web ConfigPage pattern.
 type Row = CmsSource & { _rowId: string };
+
+type SettingsExport = {
+	version: 1;
+	apiOrigin: string;
+	sources: CmsSource[];
+};
 
 function rowId(): string {
 	return Math.random().toString(36).slice(2, 10);
 }
 
-function toRow(s: CmsSource): Row {
-	return { ...s, _rowId: rowId() };
+function toRow(source: CmsSource): Row {
+	return { ...source, _rowId: rowId() };
 }
 
-function toSource(r: Row): CmsSource {
-	const { _rowId: _, ...rest } = r;
+function toSource(row: Row): CmsSource {
+	const { _rowId: _, ...source } = row;
 	void _;
-	return rest;
+	return source;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null;
+}
+
+function parseSource(value: unknown): CmsSource | null {
+	if (!isRecord(value)) return null;
+	const key = typeof value.key === "string" ? value.key.trim() : "";
+	const name = typeof value.name === "string" ? value.name.trim() : "";
+	const api = typeof value.api === "string" ? value.api.trim() : "";
+	if (!key || !name || !api) return null;
+
+	const source: CmsSource = { key, name, api };
+	if (typeof value.detail === "string" && value.detail.trim()) {
+		source.detail = value.detail.trim();
+	}
+	if (typeof value.adult === "boolean") source.adult = value.adult;
+	if (typeof value.enabled === "boolean") source.enabled = value.enabled;
+	return source;
+}
+
+function parseImportPayload(value: unknown): SettingsExport | null {
+	const rawSources = Array.isArray(value)
+		? value
+		: isRecord(value) && Array.isArray(value.sources)
+			? value.sources
+			: null;
+	if (!rawSources) return null;
+
+	const sources = rawSources.map(parseSource);
+	if (sources.some((source) => !source)) return null;
+
+	const apiOrigin =
+		isRecord(value) && typeof value.apiOrigin === "string"
+			? value.apiOrigin
+			: "";
+
+	return {
+		version: 1,
+		apiOrigin,
+		sources: sources as CmsSource[],
+	};
 }
 
 export function SettingsPage() {
 	const sources = useSources();
 	const [rows, setRows] = useState<Row[]>(() => sources.map(toRow));
+	const [apiOrigin, setApiOrigin] = useState(() => getStoredApiOrigin());
 	const [saveMsg, setSaveMsg] = useState<string | null>(null);
+	const [jsonText, setJsonText] = useState("");
+	const importRef = useRef<HTMLInputElement | null>(null);
 
-	// Keep the form in sync if sources change externally (e.g. first hydration
-	// after mount arrives). We only overwrite local state when sources differs
-	// in length — avoids clobbering unsaved edits.
 	useEffect(() => {
 		setRows((prev) =>
 			prev.length === 0 && sources.length > 0 ? sources.map(toRow) : prev,
@@ -49,86 +101,240 @@ export function SettingsPage() {
 	};
 
 	const removeRow = (id: string) => {
-		setRows((prev) => prev.filter((r) => r._rowId !== id));
+		setRows((prev) => prev.filter((row) => row._rowId !== id));
 	};
 
 	const updateRow = (id: string, patch: Partial<Row>) => {
 		setRows((prev) =>
-			prev.map((r) => (r._rowId === id ? { ...r, ...patch } : r)),
+			prev.map((row) => (row._rowId === id ? { ...row, ...patch } : row)),
 		);
 	};
 
 	const moveRow = (id: string, dir: -1 | 1) => {
 		setRows((prev) => {
-			const idx = prev.findIndex((r) => r._rowId === id);
-			if (idx < 0) return prev;
-			const target = idx + dir;
-			if (target < 0 || target >= prev.length) return prev;
+			const index = prev.findIndex((row) => row._rowId === id);
+			const target = index + dir;
+			if (index < 0 || target < 0 || target >= prev.length) return prev;
 			const next = prev.slice();
-			[next[idx], next[target]] = [next[target]!, next[idx]!];
+			const current = next[index];
+			const swap = next[target];
+			if (!current || !swap) return prev;
+			next[index] = swap;
+			next[target] = current;
 			return next;
 		});
 	};
 
-	const save = () => {
-		for (const r of rows) {
-			if (!r.key.trim() || !r.name.trim() || !r.api.trim()) {
-				setSaveMsg("每一行必须填写 key、名称和 API");
-				return;
-			}
-			if (!/^https?:\/\//.test(r.api)) {
-				setSaveMsg(`API 必须以 http:// 或 https:// 开头: ${r.key}`);
+	const save = async () => {
+		const trimmedOrigin = apiOrigin.trim();
+		if (trimmedOrigin) {
+			try {
+				const url = new URL(trimmedOrigin);
+				if (url.protocol !== "http:" && url.protocol !== "https:") {
+					setSaveMsg("API 服务地址必须以 http:// 或 https:// 开头");
+					return;
+				}
+			} catch {
+				setSaveMsg("API 服务地址格式不正确");
 				return;
 			}
 		}
+
+		for (const row of rows) {
+			if (!row.key.trim() || !row.name.trim() || !row.api.trim()) {
+				setSaveMsg("每一行都需要填写 key、名称和 API");
+				return;
+			}
+			if (!/^https?:\/\//.test(row.api)) {
+				setSaveMsg(`源 API 必须以 http:// 或 https:// 开头：${row.key}`);
+				return;
+			}
+		}
+
 		const keys = new Set<string>();
-		for (const r of rows) {
-			if (keys.has(r.key)) {
-				setSaveMsg(`重复的 key: ${r.key}`);
+		for (const row of rows) {
+			if (keys.has(row.key)) {
+				setSaveMsg(`重复的 key：${row.key}`);
 				return;
 			}
-			keys.add(r.key);
+			keys.add(row.key);
 		}
-		const cleaned = rows.map((r) => {
-			const s = toSource(r);
-			if (!s.detail) delete s.detail;
-			return s;
+
+		const cleaned = rows.map((row) => {
+			const source = toSource(row);
+			if (!source.detail) delete source.detail;
+			return source;
 		});
-		saveSources(cleaned);
-		setSaveMsg("已保存");
-		setTimeout(() => setSaveMsg(null), 2200);
+		try {
+			await saveSources(cleaned, apiOrigin);
+			setStoredApiOrigin(apiOrigin);
+			setSaveMsg("已保存");
+			setTimeout(() => {
+				window.location.reload();
+			}, 500);
+		} catch (error) {
+			setSaveMsg(error instanceof Error ? error.message : "保存失败");
+		}
+	};
+
+	const currentSources = () =>
+		rows.map((row) => {
+			const source = toSource(row);
+			if (!source.detail) delete source.detail;
+			return source;
+		});
+
+	const exportSettings = () => {
+		const payload: SettingsExport = {
+			version: 1,
+			apiOrigin,
+			sources: currentSources(),
+		};
+		const blob = new Blob([JSON.stringify(payload, null, 2)], {
+			type: "application/json;charset=utf-8",
+		});
+		const href = URL.createObjectURL(blob);
+		const link = document.createElement("a");
+		const date = new Date().toISOString().slice(0, 10);
+		link.href = href;
+		link.download = `marstv-desktop-settings-${date}.json`;
+		document.body.appendChild(link);
+		link.click();
+		link.remove();
+		URL.revokeObjectURL(href);
+		setSaveMsg("已导出配置");
+	};
+
+	const applyImportedText = (text: string) => {
+		try {
+			const parsed = parseImportPayload(JSON.parse(text));
+			if (!parsed) {
+				setSaveMsg("导入文件格式不正确");
+				return;
+			}
+			setRows(parsed.sources.map(toRow));
+			setApiOrigin(parsed.apiOrigin);
+			setJsonText("");
+			setSaveMsg("已导入，请保存生效");
+		} catch {
+			setSaveMsg("导入失败，请检查 JSON 文件");
+		}
+	};
+
+	const importSettings = async (file: File | undefined) => {
+		if (!file) return;
+		try {
+			applyImportedText(await file.text());
+		} finally {
+			if (importRef.current) importRef.current.value = "";
+		}
+	};
+
+	const importJsonText = () => {
+		if (!jsonText.trim()) {
+			setSaveMsg("请先粘贴 JSON 配置");
+			return;
+		}
+		applyImportedText(jsonText);
 	};
 
 	return (
-		<div className="mx-auto w-full max-w-[1100px] px-6 pt-14 pb-24 md:px-8">
-			<header className="mb-10">
-				<div className="micro-label mb-2">本地设置</div>
-				<h1 className="text-[28px] font-semibold tracking-[-0.02em] text-[var(--fg)]">
-					CMS 源配置
-				</h1>
-				<p className="mt-2 text-[13px] text-[var(--fg-dim)]">
-					所有源仅保存在本机，不会上传到任何服务器。
-				</p>
+		<div className="mx-auto w-full max-w-[1120px] px-6 pt-10 pb-24 md:px-8">
+			<header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+				<div>
+					<div className="micro-label mb-2">桌面端设置</div>
+					<h1 className="text-[30px] font-semibold tracking-[-0.02em] text-[var(--fg)]">
+						CMS 源与 API
+					</h1>
+					<p className="mt-2 max-w-2xl text-[13px] leading-6 text-[var(--fg-dim)]">
+						设置只保存在当前设备。桌面端可以连接部署后的 Web / Worker
+						API，也可以维护本地 CMS 源列表。
+					</p>
+				</div>
+				<div className="rounded-[8px] border border-[var(--border)] bg-[var(--bg-1)] px-3 py-2 font-mono text-[11px] text-[var(--fg-mute)]">
+					{rows.length.toString().padStart(2, "0")} SOURCES
+				</div>
 			</header>
 
+			<section className="mb-5 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-1)] p-4">
+				<Field
+					label="API 服务地址"
+					value={apiOrigin}
+					onChange={setApiOrigin}
+					placeholder="https://marstv-web.example.workers.dev"
+					mono
+				/>
+				<p className="mt-2 text-[12px] text-[var(--fg-mute)]">
+					留空时使用同源地址；桌面端建议填写已部署的 Web / Worker 地址。
+				</p>
+			</section>
+
+			<section className="mb-5 flex flex-wrap items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-1)] p-4">
+				<div className="mr-auto">
+					<div className="micro-label mb-1">配置备份</div>
+					<p className="text-[12px] text-[var(--fg-mute)]">
+						导出或导入当前 API 地址与 CMS 源列表。
+					</p>
+				</div>
+				<input
+					ref={importRef}
+					type="file"
+					accept="application/json,.json"
+					className="hidden"
+					onChange={(event) => {
+						void importSettings(event.target.files?.[0]);
+					}}
+				/>
+				<button
+					type="button"
+					onClick={() => importRef.current?.click()}
+					className="quick-action"
+				>
+					<span className="dot" />
+					导入
+				</button>
+				<button type="button" onClick={exportSettings} className="quick-action">
+					<span className="dot" />
+					导出
+				</button>
+				<div className="mt-3 flex w-full flex-col gap-3">
+					<textarea
+						value={jsonText}
+						onChange={(event) => setJsonText(event.target.value)}
+						placeholder='粘贴 JSON 配置，例如 {"version":1,"apiOrigin":"","sources":[...]}'
+						spellCheck={false}
+						className="min-h-28 w-full resize-y rounded-[8px] border border-[var(--border)] bg-[var(--bg-2)] px-3 py-2 font-mono text-[12px] text-[var(--fg)] placeholder:text-[var(--fg-mute)] focus:border-[var(--ember-ring)] focus:ring-2 focus:ring-[rgba(255,122,0,0.15)]"
+					/>
+					<div className="flex justify-end">
+						<button
+							type="button"
+							onClick={importJsonText}
+							className="glass-button"
+						>
+							导入 JSON
+						</button>
+					</div>
+				</div>
+			</section>
+
 			{rows.length === 0 ? (
-				<div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-1)] px-6 py-10 text-center">
-					<p className="text-[14px] text-[var(--fg-dim)]">尚未配置任何视频源</p>
+				<div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-1)] px-6 py-12 text-center">
+					<p className="text-[14px] text-[var(--fg-dim)]">还没有配置视频源</p>
 					<button type="button" onClick={addRow} className="glass-button mt-5">
 						添加第一个源
 					</button>
 				</div>
 			) : (
 				<div className="space-y-3">
-					{rows.map((r, i) => (
+					{rows.map((row, index) => (
 						<SourceRow
-							key={r._rowId}
-							row={r}
-							index={i}
+							key={row._rowId}
+							row={row}
+							index={index}
 							total={rows.length}
-							onChange={(patch) => updateRow(r._rowId, patch)}
-							onRemove={() => removeRow(r._rowId)}
-							onMove={(dir) => moveRow(r._rowId, dir)}
+							onChange={(patch) => updateRow(row._rowId, patch)}
+							onRemove={() => removeRow(row._rowId)}
+							onMove={(dir) => moveRow(row._rowId, dir)}
 						/>
 					))}
 				</div>
@@ -140,7 +346,7 @@ export function SettingsPage() {
 					添加源
 				</button>
 				<div className="ml-auto flex items-center gap-3">
-					{saveMsg && (
+					{saveMsg ? (
 						<span
 							className={
 								saveMsg === "已保存"
@@ -150,8 +356,14 @@ export function SettingsPage() {
 						>
 							{saveMsg}
 						</span>
-					)}
-					<button type="button" onClick={save} className="glass-button">
+					) : null}
+					<button
+						type="button"
+						onClick={() => {
+							void save();
+						}}
+						className="glass-button"
+					>
 						保存全部
 					</button>
 				</div>
@@ -180,28 +392,28 @@ function SourceRow({
 			<Field
 				label="key"
 				value={row.key}
-				onChange={(v) => onChange({ key: v })}
+				onChange={(value) => onChange({ key: value })}
 				placeholder="唯一标识"
 				mono
 			/>
 			<Field
 				label="名称"
 				value={row.name}
-				onChange={(v) => onChange({ name: v })}
-				placeholder="显示名"
+				onChange={(value) => onChange({ name: value })}
+				placeholder="显示名称"
 			/>
 			<Field
 				label="API"
 				value={row.api}
-				onChange={(v) => onChange({ api: v })}
-				placeholder="https://…/api.php/provide/vod"
+				onChange={(value) => onChange({ api: value })}
+				placeholder="https://.../api.php/provide/vod"
 				mono
 			/>
 			<Field
-				label="详情页 (可选)"
+				label="详情页"
 				value={row.detail ?? ""}
-				onChange={(v) => onChange({ detail: v })}
-				placeholder="https://…"
+				onChange={(value) => onChange({ detail: value })}
+				placeholder="可选"
 				mono
 			/>
 			<div className="flex flex-row items-center gap-2 md:flex-col md:items-end md:gap-2">
@@ -209,12 +421,12 @@ function SourceRow({
 					<Toggle
 						label="启用"
 						checked={row.enabled ?? true}
-						onChange={(v) => onChange({ enabled: v })}
+						onChange={(value) => onChange({ enabled: value })}
 					/>
 					<Toggle
 						label="成人"
 						checked={row.adult ?? false}
-						onChange={(v) => onChange({ adult: v })}
+						onChange={(value) => onChange({ adult: value })}
 					/>
 				</div>
 				<div className="flex items-center gap-1">
@@ -250,7 +462,7 @@ function Field({
 }: {
 	label: string;
 	value: string;
-	onChange: (v: string) => void;
+	onChange: (value: string) => void;
 	placeholder?: string;
 	mono?: boolean;
 }) {
@@ -260,7 +472,7 @@ function Field({
 			<input
 				type="text"
 				value={value}
-				onChange={(e) => onChange(e.target.value)}
+				onChange={(event) => onChange(event.target.value)}
 				placeholder={placeholder}
 				className={`h-9 rounded-[8px] border border-[var(--border)] bg-[var(--bg-2)] px-3 text-[13px] text-[var(--fg)] placeholder:text-[var(--fg-mute)] focus:border-[var(--ember-ring)] focus:ring-2 focus:ring-[rgba(255,122,0,0.15)] ${mono ? "font-mono" : ""}`}
 			/>
@@ -275,14 +487,14 @@ function Toggle({
 }: {
 	label: string;
 	checked: boolean;
-	onChange: (v: boolean) => void;
+	onChange: (value: boolean) => void;
 }) {
 	return (
 		<label className="flex cursor-pointer select-none items-center gap-1.5 text-[11px] text-[var(--fg-dim)]">
 			<input
 				type="checkbox"
 				checked={checked}
-				onChange={(e) => onChange(e.target.checked)}
+				onChange={(event) => onChange(event.target.checked)}
 				className="h-3.5 w-3.5 cursor-pointer accent-[var(--ember)]"
 			/>
 			{label}
