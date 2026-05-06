@@ -25,7 +25,7 @@ Instructions for AI coding agents (Claude Code, Codex, Cursor, Cline, Aider, 等
 - **Package manager:** pnpm `10.33.0` — pinned via `packageManager`. **Never use `npm` or `yarn`.**
 - **Node:** `>= 22`.
 - **Orchestrator:** Turborepo (`turbo.json`). Root scripts fan out via `turbo run <task>`.
-- **CI:** GitHub Actions run the quality gate on PRs and pushes to `main`; no git hooks.
+- **CI:** GitHub Actions run the quality gate plus Desktop/Mobile/TV/Web builds on PRs and pushes to `main`; no git hooks.
 
 ## pnpm catalogs (critical)
 
