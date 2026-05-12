@@ -44,3 +44,5 @@ yarn-error.log*
 .claude/settings.local.json
 
 .playwright-mcp
+.docs
+null
