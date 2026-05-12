@@ -13,6 +13,18 @@ export const marsPalette = {
 	magentaDeep: "#a81e53",
 } as const;
 
+/** Cinema theme accent (prototype red) */
+export const cinemaPalette = {
+	red: "oklch(55% 0.22 22)",
+	redSoft: "oklch(55% 0.22 22 / 0.16)",
+	redRing: "oklch(55% 0.22 22 / 0.35)",
+	bg: "oklch(12% 0.008 255)",
+	surface: "oklch(17% 0.01 255)",
+	fg: "oklch(96% 0.002 240)",
+	muted: "oklch(60% 0.012 255)",
+	border: "oklch(26% 0.01 255)",
+} as const;
+
 export const voidPalette = {
 	deep: "#080a10",
 	raised: "#141926",
@@ -28,6 +40,14 @@ export const glassTokens = {
 	edgeStrong: "rgba(255, 255, 255, 0.22)",
 	insetHi: "rgba(255, 255, 255, 0.18)",
 	insetLo: "rgba(0, 0, 0, 0.35)",
+} as const;
+
+/** Layout dimensions matching the cinema prototype */
+export const layout = {
+	sidebarW: 220,
+	sidebarIconW: 68,
+	topbarH: 56,
+	bottombarH: 60,
 } as const;
 
 export const marsGradient = {

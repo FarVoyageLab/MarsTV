@@ -33,10 +33,27 @@
 	--magenta-soft: rgba(229, 46, 113, 0.14);
 	--mars-gradient: linear-gradient(135deg, #ff7a00 0%, #e52e71 100%);
 
-	/* semantic accent (default = ember) */
-	--accent: var(--ember);
-	--accent-soft: var(--ember-soft);
-	--accent-ring: var(--ember-ring);
+	/* Cinema accent (prototype red) */
+	--cinema-red: oklch(55% 0.22 22);
+	--cinema-red-soft: color-mix(in oklch, oklch(55% 0.22 22) 16%, transparent);
+	--cinema-red-ring: color-mix(in oklch, oklch(55% 0.22 22) 35%, transparent);
+	--cinema-bg: oklch(12% 0.008 255);
+	--cinema-surface: oklch(17% 0.01 255);
+	--cinema-fg: oklch(96% 0.002 240);
+	--cinema-muted: oklch(60% 0.012 255);
+	--cinema-border: oklch(26% 0.01 255);
+
+	/* semantic accent (default = cinema red for the new UI) */
+	--accent: var(--cinema-red);
+	--accent-soft: var(--cinema-red-soft);
+	--accent-ring: var(--cinema-red-ring);
+
+	/* Layout dimensions */
+	--sidebar-w: 220px;
+	--sidebar-icon-w: 68px;
+	--topbar-h: 56px;
+	--bottombar-h: 60px;
+	--safe-bottom: env(safe-area-inset-bottom, 0px);
 
 	/* ── Legacy Mars aliases ── */
 	--mars-ember: #ff7a00;

@@ -11,6 +11,7 @@
 		"lint": "expo lint",
 		"prebuild": "expo prebuild --clean",
 		"prebuild:tv": "EXPO_TV=1 expo prebuild --clean",
+		"export:web": "expo export -p web --output-dir dist",
 		"deploy": "npx expo export -p web && npx eas-cli@latest deploy"
 	},
 	"dependencies": {

@@ -138,9 +138,19 @@ body {
 }
 
 .desktop-window-content {
-	min-height: 100vh;
-	padding-top: 34px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding-top: 34px;
 }
+
+.desktop-window-content .app-shell {
+  height: calc(100vh - 34px);
+}
+
+/* hide top header bar since we have titlebar */
+header.sticky { display: none; }
+
 
 .desktop-window-content header.sticky {
 	display: none;
