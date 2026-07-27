@@ -19,10 +19,14 @@ function run(program, args) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const cargo = process.platform === "win32" ? "cargo.exe" : "cargo";
+const pnpmEntrypoint = process.env.npm_execpath;
 
-run(pnpm, ["--filter", "@marstv/web", "build"]);
+if (!pnpmEntrypoint) {
+  throw new Error("The pnpm entrypoint is unavailable. Run this command through pnpm.");
+}
+
+run(process.execPath, [pnpmEntrypoint, "--filter", "@marstv/web", "build"]);
 run(cargo, [
   action,
   "--manifest-path",
