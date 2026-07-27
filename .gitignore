@@ -3,10 +3,12 @@ node_modules/
 dist/
 coverage/
 .wrangler/
-.dev.vars
+.dev.vars*
+!.dev.vars.example
 .env
 .env.*
-!.env.example
+!.env.self-host.example
+.marstv/
 *.log
 .DS_Store
 apps/desktop/src-tauri/target/

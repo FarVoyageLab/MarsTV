@@ -7,18 +7,46 @@
     "node": ">=24"
   },
   "scripts": {
-    "build": "turbo run build",
+    "build": "node scripts/build-workspace.mjs",
+    "build:all": "turbo run build",
     "check": "turbo run check",
     "dev": "turbo run dev --parallel",
+    "cloudflare:login": "wrangler login --config wrangler.jsonc",
+    "deploy": "node scripts/deploy-cloudflare.mjs",
+    "deploy:cloudflare": "node scripts/deploy-cloudflare.mjs",
+    "deploy:self-host": "node scripts/deploy-self-host.mjs",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
     "release:check": "node scripts/release-check.mjs",
     "sbom": "node scripts/generate-release-metadata.mjs"
   },
+  "cloudflare": {
+    "bindings": {
+      "DB": {
+        "description": "Authoritative household, account, source, audit, and cache-index database."
+      },
+      "CACHE": {
+        "description": "Non-authoritative hot cache and WebAuthn challenge storage."
+      },
+      "BACKUPS": {
+        "description": "Encrypted backup and export object storage."
+      },
+      "JOBS": {
+        "description": "Asynchronous health check, cache refresh, metadata, and backup jobs."
+      },
+      "MARSTV_SOURCE_MASTER_KEY": {
+        "description": "Generate a random 32-byte base64url value. Keep it permanently: encrypted source configurations and backups cannot be restored without it."
+      },
+      "MARSTV_BOOTSTRAP_TOKEN": {
+        "description": "Generate a random one-time value used only to create the first Owner."
+      }
+    }
+  },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "turbo": "2.10.7",
     "typescript": "7.0.2",
-    "vitest": "4.1.10"
+    "vitest": "4.1.10",
+    "wrangler": "4.114.0"
   }
 }

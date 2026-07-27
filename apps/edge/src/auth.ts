@@ -10,6 +10,7 @@ import type {
   RegistrationResponseJSON
 } from "@simplewebauthn/server";
 import type { Env, SessionPrincipal } from "./env";
+import { relyingParty } from "./origin";
 import { Repository } from "./repository";
 import { randomToken, sha256 } from "./security";
 
@@ -24,14 +25,10 @@ interface PasskeyRow {
   transports: string;
 }
 
-function relyingParty(env: Env): { origin: string; id: string } {
-  const origin = new URL(env.MARSTV_PUBLIC_ORIGIN);
-  return { origin: origin.origin, id: origin.hostname };
-}
-
 export async function registrationOptions(
   env: Env,
-  principal: SessionPrincipal
+  principal: SessionPrincipal,
+  requestUrl: string
 ): Promise<Awaited<ReturnType<typeof generateRegistrationOptions>>> {
   const user = await env.DB.prepare(
     "SELECT display_name FROM users WHERE id = ?1"
@@ -40,7 +37,7 @@ export async function registrationOptions(
   const credentials = await env.DB.prepare(
     "SELECT credential_id, transports FROM passkeys WHERE user_id = ?1"
   ).bind(principal.userId).all<{ credential_id: string; transports: string }>();
-  const rp = relyingParty(env);
+  const rp = relyingParty(env, requestUrl);
   const options = await generateRegistrationOptions({
     rpName: "MarsTV",
     rpID: rp.id,
@@ -67,13 +64,14 @@ export async function registrationOptions(
 export async function registerPasskey(
   env: Env,
   principal: SessionPrincipal,
-  response: RegistrationResponseJSON
+  response: RegistrationResponseJSON,
+  requestUrl: string
 ): Promise<{ verified: true; credentialId: string }> {
   const challengeKey = `webauthn:register:${principal.userId}`;
   const challenge = await env.CACHE.get(challengeKey);
   if (!challenge) throw new Error("PASSKEY_CHALLENGE_EXPIRED");
   await env.CACHE.delete(challengeKey);
-  const rp = relyingParty(env);
+  const rp = relyingParty(env, requestUrl);
   const verification = await verifyRegistrationResponse({
     response,
     expectedChallenge: challenge,
@@ -106,13 +104,14 @@ export async function registerPasskey(
 }
 
 export async function authenticationOptions(
-  env: Env
+  env: Env,
+  requestUrl: string
 ): Promise<{
   requestId: string;
   options: Awaited<ReturnType<typeof generateAuthenticationOptions>>;
 }> {
   const requestId = randomToken(18);
-  const rp = relyingParty(env);
+  const rp = relyingParty(env, requestUrl);
   const options = await generateAuthenticationOptions({
     rpID: rp.id,
     userVerification: "required",
@@ -127,7 +126,8 @@ export async function authenticationOptions(
 export async function authenticatePasskey(
   env: Env,
   requestId: string,
-  response: AuthenticationResponseJSON
+  response: AuthenticationResponseJSON,
+  requestUrl: string
 ): Promise<{ token: string; expiresAt: string }> {
   const challengeKey = `webauthn:authenticate:${requestId}`;
   const challenge = await env.CACHE.get(challengeKey);
@@ -148,7 +148,7 @@ export async function authenticatePasskey(
     WHERE passkeys.credential_id = ?1
   `).bind(response.id).first<PasskeyRow>();
   if (!row) throw new Error("PASSKEY_NOT_FOUND");
-  const rp = relyingParty(env);
+  const rp = relyingParty(env, requestUrl);
   const verification = await verifyAuthenticationResponse({
     response,
     expectedChallenge: challenge,

@@ -7,7 +7,7 @@ export interface Env {
   PAIRING: DurableObjectNamespace;
   RATE_LIMITER: DurableObjectNamespace;
   SYNC: DurableObjectNamespace;
-  MARSTV_PUBLIC_ORIGIN: string;
+  MARSTV_PUBLIC_ORIGIN?: string;
   MARSTV_SOURCE_MASTER_KEY: string;
   MARSTV_BOOTSTRAP_TOKEN: string;
   MARSTV_DOUBAN_ENABLED: string;

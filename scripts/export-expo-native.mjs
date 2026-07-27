@@ -6,7 +6,10 @@ for (const platform of ["ios", "android"]) {
     ["pnpm", "exec", "expo", "export", "--platform", platform, "--output-dir", `dist/${platform}`],
     {
       cwd: process.cwd(),
-      env: process.env,
+      env: {
+        ...process.env,
+        EXPO_NO_TELEMETRY: process.env.EXPO_NO_TELEMETRY || "1"
+      },
       stdio: "inherit"
     }
   );

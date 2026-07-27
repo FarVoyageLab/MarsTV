@@ -1,5 +1,6 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { resolve } from "node:path";
 
 const required = [
   "LICENSE",
@@ -18,7 +19,7 @@ if (missing.length > 0) {
   throw new Error(`Missing release documents: ${missing.join(", ")}`);
 }
 
-const wrangler = readFileSync("apps/edge/wrangler.jsonc", "utf8");
+const wrangler = readFileSync("wrangler.jsonc", "utf8");
 const blockers = [];
 if (wrangler.includes("replace-with-")) {
   blockers.push("Cloudflare D1/KV resource IDs are still placeholders.");
@@ -26,6 +27,12 @@ if (wrangler.includes("replace-with-")) {
 if (process.env.MARSTV_DOUBAN_ENABLED === "true" && !process.env.MARSTV_DOUBAN_LEGAL_APPROVAL_ID) {
   blockers.push("Douban is enabled without MARSTV_DOUBAN_LEGAL_APPROVAL_ID.");
 }
+
+mkdirSync(".marstv", { recursive: true });
+const childEnvironment = {
+  ...process.env,
+  WRANGLER_LOG_PATH: process.env.WRANGLER_LOG_PATH || resolve(".marstv/wrangler-release-check.log")
+};
 
 for (const [command, args] of [
   ["corepack", ["pnpm", "check"]],
@@ -37,7 +44,7 @@ for (const [command, args] of [
   ["corepack", ["pnpm", "--filter", "@marstv/tv", "build"]],
   ["corepack", ["pnpm", "sbom"]]
 ]) {
-  const result = spawnSync(command, args, { stdio: "inherit", env: process.env });
+  const result = spawnSync(command, args, { stdio: "inherit", env: childEnvironment });
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 

@@ -14,6 +14,7 @@ import {
   registrationOptions
 } from "./auth";
 import { processJob } from "./jobs";
+import { resolvePublicOrigin } from "./origin";
 import { Repository } from "./repository";
 import { assertAllowedUrl, guardedFetch, randomToken, redactLog, sha256 } from "./security";
 
@@ -52,7 +53,10 @@ app.use("*", async (context, next) => {
 });
 
 app.use("/v1/*", cors({
-  origin: (origin, context) => origin === context.env.MARSTV_PUBLIC_ORIGIN ? origin : null,
+  origin: (origin, context) => {
+    const allowedOrigin = resolvePublicOrigin(context.env, context.req.url);
+    return origin === allowedOrigin ? origin : null;
+  },
   credentials: true,
   allowHeaders: ["authorization", "content-type", "x-request-id"],
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -119,7 +123,7 @@ app.post("/v1/auth/passkeys/register/options", async (context) => {
   const session = context.get("session");
   if (!session) return apiError(context.get("requestId"), 401, "AUTH_REQUIRED", "Authentication is required.");
   try {
-    return context.json(await registrationOptions(context.env, session));
+    return context.json(await registrationOptions(context.env, session, context.req.url));
   } catch (error) {
     return apiError(context.get("requestId"), 400, "PASSKEY_OPTIONS_FAILED", error instanceof Error ? error.message : "Unable to create passkey options.");
   }
@@ -130,7 +134,7 @@ app.post("/v1/auth/passkeys/register/verify", async (context) => {
   if (!session) return apiError(context.get("requestId"), 401, "AUTH_REQUIRED", "Authentication is required.");
   try {
     const body = await context.req.json<{ response: Parameters<typeof registerPasskey>[2] }>();
-    return context.json(await registerPasskey(context.env, session, body.response), 201);
+    return context.json(await registerPasskey(context.env, session, body.response, context.req.url), 201);
   } catch (error) {
     return apiError(context.get("requestId"), 400, "PASSKEY_REGISTRATION_FAILED", error instanceof Error ? error.message : "Passkey registration failed.");
   }
@@ -138,7 +142,7 @@ app.post("/v1/auth/passkeys/register/verify", async (context) => {
 
 app.post("/v1/auth/passkeys/authenticate/options", async (context) => {
   try {
-    return context.json(await authenticationOptions(context.env));
+    return context.json(await authenticationOptions(context.env, context.req.url));
   } catch (error) {
     return apiError(context.get("requestId"), 400, "PASSKEY_OPTIONS_FAILED", error instanceof Error ? error.message : "Unable to create passkey options.");
   }
@@ -150,7 +154,12 @@ app.post("/v1/auth/passkeys/authenticate/verify", async (context) => {
       requestId: string;
       response: Parameters<typeof authenticatePasskey>[2];
     }>();
-    return context.json(await authenticatePasskey(context.env, body.requestId, body.response));
+    return context.json(await authenticatePasskey(
+      context.env,
+      body.requestId,
+      body.response,
+      context.req.url
+    ));
   } catch (error) {
     return apiError(context.get("requestId"), 401, "PASSKEY_AUTHENTICATION_FAILED", error instanceof Error ? error.message : "Passkey authentication failed.");
   }
