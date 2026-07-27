@@ -1,0 +1,24 @@
+{
+  "name": "marstv",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "check": "turbo run check",
+    "dev": "turbo run dev --parallel",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "release:check": "node scripts/release-check.mjs",
+    "sbom": "node scripts/generate-release-metadata.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "turbo": "2.10.7",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  }
+}

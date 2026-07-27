@@ -1,0 +1,124 @@
+name: Release packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Release channel
+        type: choice
+        options: [candidate, store, direct]
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.33.0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - uses: dtolnay/rust-toolchain@stable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm sbom
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MarsTV-SBOM-Licenses
+          path: |
+            artifacts/sbom.cdx.json
+            artifacts/licenses.pnpm.json
+            artifacts/licenses.cargo.json
+            LICENSE
+            LICENSES/**
+            NOTICE
+            THIRD_PARTY_NOTICES.md
+
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            artifact: macOS
+          - os: windows-latest
+            artifact: Windows
+          - os: ubuntu-latest
+            artifact: Linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.33.0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - uses: dtolnay/rust-toolchain@stable
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @marstv/web build
+      - name: Install universal macOS targets
+        if: runner.os == 'macOS'
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+      - name: Build universal macOS package
+        if: runner.os == 'macOS'
+        run: pnpm --filter @marstv/desktop exec tauri build --target universal-apple-darwin
+        env:
+          MARSTV_RELEASE_CHANNEL: ${{ inputs.channel }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      - name: Build Windows or Linux packages
+        if: runner.os != 'macOS'
+        run: pnpm --filter @marstv/desktop build
+        env:
+          MARSTV_RELEASE_CHANNEL: ${{ inputs.channel }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MarsTV-${{ matrix.artifact }}
+          path: apps/desktop/src-tauri/target/release/bundle/**
+
+  web-edge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.33.0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @marstv/web build
+      - run: pnpm --filter @marstv/edge build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MarsTV-Web-Edge
+          path: |
+            apps/web/dist/**
+            apps/edge/dist/**
+
+  expo:
+    runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.33.0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Mobile store builds
+        working-directory: apps/mobile
+        run: pnpm dlx eas-cli@21.2.0 build --platform all --profile production --non-interactive --no-wait
+      - name: Mobile sideload APK
+        working-directory: apps/mobile
+        run: pnpm dlx eas-cli@21.2.0 build --platform android --profile preview --non-interactive --no-wait
+      - name: TV store builds
+        working-directory: apps/tv
+        run: pnpm dlx eas-cli@21.2.0 build --platform all --profile production --non-interactive --no-wait
+      - name: Android TV sideload APK
+        working-directory: apps/tv
+        run: pnpm dlx eas-cli@21.2.0 build --platform android --profile preview --non-interactive --no-wait

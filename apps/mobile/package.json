@@ -1,0 +1,30 @@
+{
+  "name": "@marstv/mobile",
+  "version": "1.0.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "build": "node ../../scripts/export-expo-native.mjs",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "dev": "expo start",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@marstv/api-client": "workspace:*",
+    "@marstv/contracts": "workspace:*",
+    "expo": "57.0.8",
+    "expo-camera": "57.0.3",
+    "expo-crypto": "57.0.1",
+    "expo-secure-store": "57.0.1",
+    "expo-video": "57.0.2",
+    "react": "19.2.8",
+    "react-native": "0.86.0",
+    "react-native-safe-area-context": "5.8.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  }
+}

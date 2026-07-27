@@ -1,0 +1,452 @@
+openapi: 3.1.0
+info:
+  title: MarsTV API
+  version: 1.0.0
+  description: |
+    Contract shared by the Cloudflare and Node self-hosted runtimes.
+    Official distributions contain no media source, resolver, or public catalog.
+servers:
+  - url: https://marstv.example
+security:
+  - bearerAuth: []
+paths:
+  /healthz:
+    get:
+      security: []
+      operationId: liveness
+      responses:
+        "200":
+          description: Process is accepting requests.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+  /v1/health:
+    get:
+      security: []
+      operationId: health
+      responses:
+        "200":
+          description: Dependency health.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+  /v1/auth/bootstrap:
+    post:
+      security: []
+      operationId: bootstrapOwner
+      parameters:
+        - in: header
+          name: x-marstv-bootstrap-token
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [displayName]
+              properties:
+                displayName: { type: string, minLength: 1, maxLength: 80 }
+      responses:
+        "201":
+          description: Owner and first session created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "409":
+          $ref: "#/components/responses/Error"
+  /v1/auth/passkeys/register/options:
+    post:
+      operationId: passkeyRegistrationOptions
+      responses:
+        "200":
+          description: WebAuthn creation options.
+  /v1/auth/passkeys/register/verify:
+    post:
+      operationId: verifyPasskeyRegistration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [response]
+              properties:
+                response: { type: object, additionalProperties: true }
+      responses:
+        "201":
+          description: Passkey stored.
+  /v1/auth/passkeys/authenticate/options:
+    post:
+      security: []
+      operationId: passkeyAuthenticationOptions
+      responses:
+        "200":
+          description: WebAuthn request options and one-time request identifier.
+  /v1/auth/passkeys/authenticate/verify:
+    post:
+      security: []
+      operationId: verifyPasskeyAuthentication
+      responses:
+        "200":
+          description: Rotatable device session.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+  /v1/auth/recovery-codes:
+    post:
+      operationId: replaceRecoveryCodes
+      responses:
+        "201":
+          description: Ten one-time codes. Returned only once.
+  /v1/auth/recovery:
+    post:
+      security: []
+      operationId: recoverSession
+      responses:
+        "200":
+          description: Session created and recovery code consumed.
+  /v1/pairing/start:
+    post:
+      security: []
+      operationId: startPairing
+      responses:
+        "201":
+          description: Five-minute code and device-held secret.
+  /v1/pairing/claim:
+    post:
+      operationId: claimPairingByCode
+      responses:
+        "200":
+          description: Device authorized by six-digit code.
+  /v1/pairing/{pairingId}/claim:
+    post:
+      operationId: claimPairing
+      parameters:
+        - $ref: "#/components/parameters/PairingId"
+      responses:
+        "200": { description: Device authorized. }
+  /v1/pairing/{pairingId}/consume:
+    post:
+      security: []
+      operationId: consumePairing
+      parameters:
+        - $ref: "#/components/parameters/PairingId"
+      responses:
+        "200":
+          description: Single-use device session.
+        "202": { description: Pairing remains pending. }
+  /v1/sources:
+    get:
+      operationId: listSources
+      responses:
+        "200":
+          description: Redacted shared sources.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Source"
+  /v1/sources/{sourceId}:
+    put:
+      operationId: saveSource
+      parameters:
+        - $ref: "#/components/parameters/SourceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Source"
+      responses:
+        "200":
+          description: Encrypted source saved and probe queued.
+    delete:
+      operationId: deleteSource
+      parameters:
+        - $ref: "#/components/parameters/SourceId"
+      responses:
+        "204": { description: Source deleted. }
+  /v1/sources/{sourceId}/probe:
+    post:
+      operationId: probeSource
+      parameters:
+        - $ref: "#/components/parameters/SourceId"
+      responses:
+        "200":
+          description: MacCMS capabilities and current health.
+  /v1/search:
+    get:
+      security: []
+      operationId: search
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 120 }
+      responses:
+        "200":
+          description: Partial-success aggregate response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+  /v1/catalog/items/{sourceId}/{itemId}:
+    get:
+      security: []
+      operationId: mediaDetail
+      parameters:
+        - $ref: "#/components/parameters/SourceId"
+        - in: path
+          name: itemId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Source-preserving media detail.
+  /v1/playback/resolve:
+    post:
+      security: []
+      operationId: resolvePlayback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResolverRequest"
+      responses:
+        "200":
+          description: Validated non-DRM playback manifest.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaybackManifest"
+  /v1/sync/push:
+    post:
+      operationId: sync
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SyncEnvelope"
+      responses:
+        "200":
+          description: Merged encrypted records and new cursor.
+  /v1/profiles:
+    get:
+      operationId: listProfiles
+      responses:
+        "200": { description: Household profiles visible to the caller. }
+    post:
+      operationId: createProfile
+      responses:
+        "201": { description: Profile created subject to role policy. }
+  /v1/devices:
+    get:
+      operationId: listDevices
+      responses:
+        "200": { description: Household devices. }
+  /v1/devices/{deviceId}/revoke:
+    post:
+      operationId: revokeDevice
+      parameters:
+        - in: path
+          name: deviceId
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: Device and its sessions revoked. }
+  /v1/audit:
+    get:
+      operationId: listAuditEvents
+      responses:
+        "200": { description: Redacted household audit events. }
+  /v1/backups:
+    post:
+      operationId: createBackup
+      responses:
+        "202": { description: Encrypted backup queued. }
+  /v1/backups/{backupId}/restore:
+    post:
+      operationId: restoreBackup
+      parameters:
+        - in: path
+          name: backupId
+          required: true
+          schema: { type: string }
+      responses:
+        "202": { description: Validated restore queued. }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+  parameters:
+    PairingId:
+      in: path
+      name: pairingId
+      required: true
+      schema: { type: string }
+    SourceId:
+      in: path
+      name: sourceId
+      required: true
+      schema: { type: string }
+  responses:
+    Error:
+      description: Structured API error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+  schemas:
+    Health:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string }
+    Session:
+      type: object
+      required: [token, expiresAt]
+      properties:
+        token: { type: string }
+        expiresAt: { type: string, format: date-time }
+        userId: { type: string }
+        householdId: { type: string }
+    Source:
+      type: object
+      required: [id, name, baseUrl, enabled, priority, timeoutMs, allowedHosts, headers, relayMode, categoryMap, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        name: { type: string, maxLength: 80 }
+        baseUrl: { type: string, format: uri, pattern: "^https://" }
+        enabled: { type: boolean }
+        priority: { type: integer, minimum: 1, maximum: 999 }
+        timeoutMs: { type: integer, minimum: 500, maximum: 15000 }
+        allowedHosts:
+          type: array
+          maxItems: 32
+          items: { type: string }
+        headers:
+          type: object
+          additionalProperties: { type: string }
+        relayMode: { enum: [off, manifest, full] }
+        categoryMap:
+          type: object
+          additionalProperties: { type: string }
+        resolver:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [endpoint, allowedHosts, timeoutMs]
+              properties:
+                endpoint: { type: string, format: uri }
+                allowedHosts:
+                  type: array
+                  items: { type: string }
+                timeoutMs: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    MediaSummary:
+      type: object
+      required: [id, sourceId, sourceItemId, fingerprint, title, kind]
+      properties:
+        id: { type: string }
+        sourceId: { type: string }
+        sourceItemId: { type: string }
+        fingerprint: { type: string }
+        title: { type: string }
+        kind: { enum: [movie, series, episode, unknown] }
+        year: { type: [integer, "null"] }
+        posterUrl: { type: [string, "null"], format: uri }
+    SearchResponse:
+      type: object
+      required: [query, items, sources, partial, requestId]
+      properties:
+        query: { type: string }
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MediaSummary"
+        sources:
+          type: array
+          items:
+            type: object
+            required: [sourceId, sourceName, state, latencyMs]
+            properties:
+              sourceId: { type: string }
+              sourceName: { type: string }
+              state: { enum: [ok, timeout, error, skipped] }
+              latencyMs: { type: integer }
+              message: { type: [string, "null"] }
+        partial: { type: boolean }
+        requestId: { type: string }
+    ResolverRequest:
+      type: object
+      required: [sourceId, sourceItemId, episodeId, episodeUrl]
+      properties:
+        sourceId: { type: string }
+        sourceItemId: { type: string }
+        episodeId: { type: string }
+        episodeUrl: { type: string }
+        preferredProtocol:
+          type: [string, "null"]
+          enum: [hls, dash, progressive, null]
+    PlaybackManifest:
+      type: object
+      required: [protocol, url, headers, subtitles, audioTracks]
+      properties:
+        protocol: { enum: [hls, dash, progressive] }
+        url: { type: string, format: uri }
+        headers:
+          type: object
+          additionalProperties: { type: string }
+        expiresAt: { type: [string, "null"], format: date-time }
+        subtitles: { type: array, items: { type: object } }
+        audioTracks: { type: array, items: { type: object } }
+    SyncEnvelope:
+      type: object
+      required: [householdId, deviceId, records]
+      properties:
+        householdId: { type: string }
+        deviceId: { type: string }
+        cursor: { type: [string, "null"] }
+        records:
+          type: array
+          maxItems: 1000
+          items:
+            type: object
+            required: [id, collection, ciphertext, nonce, clock]
+            properties:
+              id: { type: string }
+              collection: { enum: [localSources, preferences, favorites, history, progress, metadataMatches, profiles] }
+              ciphertext: { type: string }
+              nonce: { type: string }
+              clock:
+                type: object
+                required: [wallTime, counter, deviceId]
+                properties:
+                  wallTime: { type: integer }
+                  counter: { type: integer }
+                  deviceId: { type: string }
+              deletedAt: { type: [string, "null"], format: date-time }
+    ApiError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, requestId]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            requestId: { type: string }
+            details: {}

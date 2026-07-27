@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "MarsTV",
+    "slug": "marstv",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "dark",
+    "scheme": "marstv",
+    "assetBundlePatterns": ["assets/**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "lab.farvoyage.marstv",
+      "deploymentTarget": "17.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "MarsTV uses the camera only to scan a device-pairing QR code.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "privacyManifests": {
+        "NSPrivacyAccessedAPITypes": []
+      }
+    },
+    "android": {
+      "package": "lab.farvoyage.marstv",
+      "minSdkVersion": 26,
+      "targetSdkVersion": 36,
+      "permissions": ["CAMERA"],
+      "adaptiveIcon": {
+        "backgroundColor": "#0b0d10"
+      }
+    },
+    "plugins": [
+      ["expo-camera", {
+        "cameraPermission": "MarsTV uses the camera only to scan a device-pairing QR code."
+      }],
+      ["expo-secure-store", {
+        "configureAndroidBackup": true,
+        "faceIDPermission": "Allow MarsTV to unlock encrypted household configuration."
+      }],
+      "expo-video"
+    ],
+    "extra": {
+      "storeBuild": true,
+      "bundledSources": 0
+    }
+  }
+}
