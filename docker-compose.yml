@@ -1,0 +1,36 @@
+services:
+  marstv:
+    image: ${MARSTV_IMAGE:-ghcr.io/farvoyagelab/marstv:latest}
+    build: .
+    ports:
+      - "${MARSTV_PORT:-8787}:8787"
+    environment:
+      MARSTV_PUBLIC_ORIGIN: ${MARSTV_PUBLIC_ORIGIN:-http://localhost:8787}
+      MARSTV_SOURCE_MASTER_KEY: ${MARSTV_SOURCE_MASTER_KEY:?required}
+      MARSTV_BOOTSTRAP_TOKEN: ${MARSTV_BOOTSTRAP_TOKEN:?required}
+      MARSTV_DOUBAN_ENABLED: ${MARSTV_DOUBAN_ENABLED:-false}
+      MARSTV_DOUBAN_LEGAL_APPROVAL_ID: ${MARSTV_DOUBAN_LEGAL_APPROVAL_ID:-}
+      MARSTV_DOUBAN_ORIGIN: ${MARSTV_DOUBAN_ORIGIN:-https://movie.douban.com}
+    volumes:
+      - marstv-data:/data
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:8787/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    stop_grace_period: 30s
+
+volumes:
+  marstv-data:

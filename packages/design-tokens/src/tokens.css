@@ -1,0 +1,21 @@
+:root {
+  color-scheme: dark;
+  --mars-canvas: #0b0d10;
+  --mars-canvas-raised: #11151a;
+  --mars-surface: #161b21;
+  --mars-surface-strong: #1d232b;
+  --mars-border: #2a313a;
+  --mars-border-strong: #3a424d;
+  --mars-text: #f4f0e8;
+  --mars-text-muted: #9da4ad;
+  --mars-amber: #e9a23b;
+  --mars-amber-strong: #f2b84f;
+  --mars-success: #60bd7a;
+  --mars-warning: #e9a23b;
+  --mars-danger: #ef6a62;
+  --mars-info: #70a7d8;
+  --mars-radius-control: 6px;
+  --mars-radius-panel: 8px;
+  --mars-radius-media: 6px;
+  --mars-focus: 0 0 0 3px #0b0d10, 0 0 0 5px #e9a23b;
+}

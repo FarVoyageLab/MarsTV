@@ -1,0 +1,29 @@
+{
+  "name": "@marstv/server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node24 --outfile=dist/index.js --sourcemap",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "dev": "node --watch --experimental-strip-types src/index.ts",
+    "start": "node --enable-source-maps dist/index.js",
+    "test": "vitest run src",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.0",
+    "@marstv/contracts": "workspace:*",
+    "@marstv/domain": "workspace:*",
+    "@marstv/maccms": "workspace:*",
+    "@marstv/sync": "workspace:*",
+    "@simplewebauthn/server": "13.3.2",
+    "hono": "4.12.32"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "esbuild": "0.28.1",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  }
+}

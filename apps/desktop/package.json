@@ -1,0 +1,21 @@
+{
+  "name": "@marstv/desktop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tauri build",
+    "check": "node ../../scripts/run-desktop-cargo.mjs check",
+    "dev": "tauri dev",
+    "test": "node ../../scripts/run-desktop-cargo.mjs test",
+    "test:coverage": "node ../../scripts/run-desktop-cargo.mjs test"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "2.11.1",
+    "@tauri-apps/plugin-store": "2.4.4",
+    "@tauri-apps/plugin-stronghold": "2.3.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.11.4"
+  }
+}

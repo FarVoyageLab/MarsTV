@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "MarsTV",
+  "version": "1.0.0",
+  "identifier": "lab.farvoyage.marstv",
+  "build": {
+    "beforeDevCommand": "corepack pnpm --filter @marstv/web dev",
+    "devUrl": "http://localhost:4173",
+    "beforeBuildCommand": "corepack pnpm --filter @marstv/web build",
+    "frontendDist": "../../web/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "MarsTV",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 680,
+        "decorations": true,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' https: data:; media-src 'self' https: blob:; connect-src 'self' https: http://localhost:8787; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:",
+      "capabilities": ["default"]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app", "dmg", "msi", "nsis", "appimage", "deb", "rpm"],
+    "category": "Entertainment",
+    "shortDescription": "Private household media library",
+    "longDescription": "MarsTV connects to media services configured by the user or household administrator.",
+    "copyright": "Copyright © 2026 FarVoyageLab contributors",
+    "macOS": {
+      "minimumSystemVersion": "13.0",
+      "signingIdentity": null
+    },
+    "windows": {
+      "wix": {
+        "language": ["en-US", "zh-CN"]
+      }
+    }
+  },
+  "plugins": {}
+}

@@ -1,0 +1,23 @@
+MarsTV App Store Distribution Exception, version 1.0
+====================================================
+
+As a special exception, the copyright holders of MarsTV grant permission to
+convey an unmodified or modified object-code build of MarsTV through an
+application distribution service that imposes technical protection measures
+or terms of service which would otherwise be considered further restrictions
+under section 10 of AGPL-3.0-or-later, provided that:
+
+1. the complete corresponding source for that exact build is offered at no
+   charge from a durable, publicly accessible URL shown in the application;
+2. recipients retain every right granted by AGPL-3.0-or-later outside the
+   distribution service;
+3. the distributor does not add restrictions beyond those unavoidably imposed
+   by the distribution service; and
+4. all third-party licenses and attribution requirements continue to be met.
+
+This exception does not grant rights to the MarsTV name, logo, signing
+identities, store accounts, or other trademarks.
+
+Only copyright holders may apply this exception to their contributions.
+Contributors must sign the MarsTV Contributor License Agreement in CLA.md for
+their contribution to be included in official store builds.

@@ -1,0 +1,27 @@
+{
+  "name": "@marstv/edge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "wrangler deploy --dry-run --config ../../wrangler.jsonc --secrets-file ../../.dev.vars.example --outdir dist",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "dev": "wrangler dev --local --config ../../wrangler.jsonc",
+    "test": "vitest run test",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@marstv/contracts": "workspace:*",
+    "@marstv/domain": "workspace:*",
+    "@marstv/maccms": "workspace:*",
+    "@marstv/sync": "workspace:*",
+    "@simplewebauthn/server": "13.3.2",
+    "hono": "4.12.32"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260726.1",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10",
+    "wrangler": "4.114.0"
+  }
+}

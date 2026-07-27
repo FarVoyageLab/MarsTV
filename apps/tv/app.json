@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "MarsTV TV",
+    "slug": "marstv-tv",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "userInterfaceStyle": "dark",
+    "scheme": "marstv-tv",
+    "assetBundlePatterns": ["assets/**/*"],
+    "ios": {
+      "bundleIdentifier": "lab.farvoyage.marstv.tv",
+      "deploymentTarget": "17.0",
+      "supportsTablet": false,
+      "infoPlist": {
+        "UIUserInterfaceStyle": "Dark",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "lab.farvoyage.marstv.tv",
+      "minSdkVersion": 26,
+      "targetSdkVersion": 36,
+      "intentFilters": [
+        {
+          "action": "MAIN",
+          "category": ["LEANBACK_LAUNCHER"]
+        }
+      ]
+    },
+    "plugins": ["expo-secure-store"],
+    "extra": {
+      "storeBuild": true,
+      "bundledSources": 0,
+      "tv": true
+    }
+  }
+}

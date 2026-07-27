@@ -1,0 +1,2 @@
+MARSTV_SOURCE_MASTER_KEY=replace-with-a-random-32-byte-base64url-key
+MARSTV_BOOTSTRAP_TOKEN=replace-with-a-random-one-time-bootstrap-token

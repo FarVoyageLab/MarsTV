@@ -1,0 +1,101 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "marstv-edge",
+  "main": "apps/edge/src/index.ts",
+  "compatibility_date": "2026-07-26",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "assets": {
+    "directory": "apps/web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/v1/*", "/healthz"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "marstv",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "CACHE"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BACKUPS",
+      "bucket_name": "marstv-backups"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PAIRING",
+        "class_name": "PairingCoordinator"
+      },
+      {
+        "name": "RATE_LIMITER",
+        "class_name": "RateLimiter"
+      },
+      {
+        "name": "SYNC",
+        "class_name": "SyncCoordinator"
+      }
+    ]
+  },
+  "exports": {
+    "PairingCoordinator": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    },
+    "RateLimiter": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    },
+    "SyncCoordinator": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  },
+  "queues": {
+    "producers": [
+      {
+        "binding": "JOBS",
+        "queue": "marstv-jobs"
+      },
+      {
+        "binding": "JOBS_DLQ",
+        "queue": "marstv-jobs-dlq"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "marstv-jobs",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 5,
+        "dead_letter_queue": "marstv-jobs-dlq"
+      }
+    ]
+  },
+  "triggers": {
+    "crons": ["*/15 * * * *", "0 3 * * *"]
+  },
+  "vars": {
+    "MARSTV_DOUBAN_ENABLED": "false",
+    "MARSTV_DOUBAN_ORIGIN": "https://movie.douban.com"
+  },
+  "secrets": {
+    "required": [
+      "MARSTV_SOURCE_MASTER_KEY",
+      "MARSTV_BOOTSTRAP_TOKEN"
+    ]
+  }
+}
