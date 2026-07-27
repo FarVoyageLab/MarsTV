@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "tauri build",
-    "check": "cargo check --manifest-path src-tauri/Cargo.toml",
+    "check": "node ../../scripts/run-desktop-cargo.mjs check",
     "dev": "tauri dev",
-    "test": "cargo test --manifest-path src-tauri/Cargo.toml",
-    "test:coverage": "cargo test --manifest-path src-tauri/Cargo.toml"
+    "test": "node ../../scripts/run-desktop-cargo.mjs test",
+    "test:coverage": "node ../../scripts/run-desktop-cargo.mjs test"
   },
   "dependencies": {
     "@tauri-apps/api": "2.11.1",
